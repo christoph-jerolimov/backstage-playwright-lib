@@ -3,6 +3,12 @@
 A minimal [Playwright](https://playwright.dev) project written in TypeScript that
 runs against a [Backstage](https://backstage.io) app.
 
+> [!NOTE]
+> This is an experiment. The goal is to contribute this to
+> [Backstage](https://github.com/backstage/backstage) once it has matured.
+> Contributions and feedback are very welcome — feel free to open an issue or
+> a pull request. 🙏
+
 ## Usage
 
 ```sh
