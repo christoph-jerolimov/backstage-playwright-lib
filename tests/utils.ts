@@ -126,7 +126,9 @@ export async function loginAsGuest(page: Page) {
 export async function clickSidebarItem(page: Page, name: string) {
   const link = sidebar(page)
     .getByRole('link', { name, exact: true })
-    .filter({ hasText: name });
+    .filter({ hasText: name })
+    // Backstage 1.50 to 1.52 show the Notifications item twice.
+    .first();
   const href = await link.getAttribute('href');
   await link.click();
   // Some pages redirect to a sub page, e.g. /settings to /settings/general.
