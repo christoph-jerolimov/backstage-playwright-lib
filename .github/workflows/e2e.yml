@@ -93,6 +93,7 @@ jobs:
         working-directory: backstage-playwright-lib
         env:
           PLAYWRIGHT_URL: http://localhost:3000
+          BACKSTAGE_VERSION: ${{ matrix.ref }}
         run: npx playwright test
 
       - name: Print Backstage log
@@ -109,3 +110,25 @@ jobs:
             backstage-playwright-lib/test-results/
           retention-days: 7
           if-no-files-found: ignore
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-${{ matrix.ref }}
+          path: backstage-playwright-lib/screenshots/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  screenshots:
+    name: Collect screenshots
+    needs: e2e
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge screenshots of all versions into one artifact
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: screenshots
+          pattern: screenshots-*
+          retention-days: 7

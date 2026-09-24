@@ -30,3 +30,7 @@ tests against it.
 The tests run in parallel against the `main` branch and the latest patch
 release of the 10 most recent Backstage releases (e.g. `1.55.0`, `1.54.0`, …).
 The list of versions is resolved from the repository tags on each run.
+
+At the end of the test a screenshot of the page is taken. Each version uploads
+its screenshot as a `screenshots-<version>` artifact, and all screenshots are
+also collected into a single `screenshots` artifact.
