@@ -132,3 +132,58 @@ jobs:
           name: screenshots
           pattern: screenshots-*
           retention-days: 7
+
+  pages:
+    name: Publish to GitHub Pages
+    needs: [versions, e2e]
+    # Publish only from the default branch, also when some versions failed.
+    if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download Playwright reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: playwright-report-*
+          path: artifacts/reports
+
+      - name: Download screenshots
+        uses: actions/download-artifact@v4
+        with:
+          pattern: screenshots-*
+          path: artifacts/screenshots
+          merge-multiple: true
+
+      - name: Build site
+        env:
+          REFS: ${{ needs.versions.outputs.refs }}
+        run: node scripts/build-pages.mjs artifacts site
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
