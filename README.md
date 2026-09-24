@@ -27,6 +27,19 @@ The [E2E workflow](.github/workflows/e2e.yml) clones
 installs its dependencies, starts it with `yarn start` and runs the Playwright
 tests against it.
 
+Before starting the app,
+[`scripts/setup-backstage.mjs`](scripts/setup-backstage.mjs) enables
+translations (English and German) using the config files in
+[`app-config/`](app-config):
+
+- New frontend system (1.49+): `app-config.nfs.yaml` configures the
+  `api:app/app-language` extension. It's written as `app-config.local.yaml`,
+  with its extensions appended to the app's own `app.extensions`, since config
+  lists aren't merged.
+- Old frontend system (up to 1.48): `app-config.ofs.yaml` is copied as
+  `app-config.local.yaml`. Translations can't be enabled via config there, so
+  the script adds `__experimentalTranslations` to `createApp()` in `App.tsx`.
+
 The tests run in parallel against the `main` branch and the latest patch
 release of the 10 most recent Backstage releases (e.g. `1.55.0`, `1.54.0`, …).
 The list of versions is resolved from the repository tags on each run.
@@ -36,7 +49,9 @@ The tests take a screenshot at the end of each step:
 - `login-page.spec.ts` opens the login page, logs in as guest by clicking the
   *Enter* button and waits for the catalog page.
 - `sidebar-navigation.spec.ts` logs in as guest and navigates via the sidebar to
-  *Home*, *Catalog*, *APIs*, *Docs*, *Notifications* and *Settings*. *Home* is
+  *Home*, *Catalog*, *APIs*, *Docs*, *Notifications* and *Settings*, and checks
+  that the language selection on *Settings* offers all configured languages.
+  *Home* is
   skipped for Backstage 1.49 to 1.53, which have no Home item, and *Catalog*
   for Backstage up to 1.48, where the catalog item is called Home.
 

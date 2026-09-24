@@ -1,0 +1,15 @@
+# Configuration for Backstage apps that use the new frontend system (1.49+).
+#
+# scripts/setup-backstage.mjs writes this as app-config.local.yaml into the
+# Backstage app. Config lists aren't merged, so the extensions below are
+# appended to the app's own app.extensions list.
+app:
+  extensions:
+    # Enable translations: the language selection is shown on the settings
+    # page when more than one language is available.
+    - api:app/app-language:
+        config:
+          defaultLanguage: en
+          availableLanguages:
+            - en
+            - de

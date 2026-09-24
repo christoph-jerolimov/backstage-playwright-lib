@@ -1,0 +1,11 @@
+# Configuration for Backstage apps that use the old frontend system (up to
+# 1.48).
+#
+# scripts/setup-backstage.mjs copies this file as app-config.local.yaml into
+# the Backstage app.
+#
+# The old frontend system can't enable translations via config. Instead,
+# scripts/setup-backstage.mjs adds the languages from app-config.nfs.yaml as
+# `__experimentalTranslations: { availableLanguages }` to createApp() in
+# packages/app/src/App.tsx.
+{}

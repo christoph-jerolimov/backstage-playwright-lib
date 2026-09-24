@@ -33,6 +33,7 @@ const screenshotNames = [
   { name: 'docs', label: 'Docs' },
   { name: 'notifications', label: 'Notifications' },
   { name: 'settings', label: 'Settings' },
+  { name: 'settings-language', label: 'Settings: language selection' },
 ];
 
 const escapeHtml = value =>

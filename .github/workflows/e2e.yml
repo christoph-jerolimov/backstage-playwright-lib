@@ -63,6 +63,11 @@ jobs:
         working-directory: backstage-history
         run: yarn install --immutable
 
+      - name: Configure Backstage app
+        # Writes app-config.local.yaml (and, for the old frontend system,
+        # patches App.tsx) to enable translations for en and de.
+        run: node backstage-playwright-lib/scripts/setup-backstage.mjs backstage-history
+
       - name: Install Playwright project dependencies
         working-directory: backstage-playwright-lib
         run: npm ci
