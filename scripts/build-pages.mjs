@@ -36,6 +36,16 @@ const screenshotNames = [
   { name: 'settings-language', label: 'Settings: language selection' },
 ];
 
+const capitalize = value => value.charAt(0).toUpperCase() + value.slice(1);
+
+function labelFor(name) {
+  const entityTab = /^catalog-entity-\d+-(.+)$/.exec(name);
+  if (entityTab) {
+    return `Entity: ${capitalize(entityTab[1].replace(/-/g, ' '))}`;
+  }
+  return capitalize(name.replace(/-/g, ' '));
+}
+
 const escapeHtml = value =>
   String(value).replace(
     /[&<>"']/g,
@@ -72,10 +82,25 @@ const versions = resolveVersions().map(ref => {
   if (hasReport) {
     cpSync(reportSrc, join(siteDir, 'reports', version), { recursive: true });
   }
-  const screenshots = screenshotNames.map(({ name, label }) => {
-    const file = `${name}-${version}.png`;
-    return { label, file: screenshotFiles.has(file) ? file : undefined };
+  // Screenshots with names that aren't known in advance, e.g. one per tab of
+  // the entity page (catalog-entity-<index>-<tab>), which differ by version.
+  const knownNames = new Set(screenshotNames.map(({ name }) => name));
+  const suffix = `-${version}.png`;
+  const extraNames = [...screenshotFiles]
+    .filter(file => file.endsWith(suffix))
+    .map(file => file.slice(0, -suffix.length))
+    .filter(name => !knownNames.has(name))
+    .sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+  const extra = name => ({ label: labelFor(name), file: `${name}${suffix}` });
+  const entityTabs = extraNames.filter(name => name.startsWith('catalog-entity-'));
+  const others = extraNames.filter(name => !name.startsWith('catalog-entity-'));
+
+  const screenshots = screenshotNames.flatMap(({ name, label }) => {
+    const file = `${name}${suffix}`;
+    const known = { label, file: screenshotFiles.has(file) ? file : undefined };
+    return name === 'catalog' ? [known, ...entityTabs.map(extra)] : [known];
   });
+  screenshots.push(...others.map(extra));
   return { ref, version, hasReport, screenshots };
 });
 

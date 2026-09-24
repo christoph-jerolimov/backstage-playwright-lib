@@ -1,5 +1,6 @@
 import {
   clickSidebarItem,
+  entityPageTabs,
   expect,
   isVersionBetween,
   loginAsGuest,
@@ -34,23 +35,58 @@ test('navigates to Home', async ({ page }, testInfo) => {
   await takeScreenshot(page, testInfo, 'home');
 });
 
-const items = [
-  {
-    name: 'Catalog',
-    screenshot: 'catalog',
+test('navigates to Catalog and opens the example-website entity', async ({
+  page,
+}, testInfo) => {
+  test.skip(
     // Before the new frontend system, the sidebar item for the catalog was
     // called Home.
-    skip: isVersionBetween('1.0', '1.48'),
-  },
+    isVersionBetween('1.0', '1.48'),
+    'The sidebar has no Catalog item in this version',
+  );
+
+  await clickSidebarItem(page, 'Catalog');
+  await takeScreenshot(page, testInfo, 'catalog');
+
+  await page.getByRole('link', { name: 'example-website', exact: true }).click();
+  // Some versions render the favorite button inside the heading.
+  await expect(
+    page.getByRole('heading', { name: 'example-website' }).first(),
+  ).toBeVisible();
+
+  // The tabs of the entity page differ between versions, so take a
+  // screenshot of each tab that is shown.
+  const tabs = entityPageTabs(page);
+  await expect(tabs.first()).toBeVisible();
+  const tabInfos = await tabs.evaluateAll(elements =>
+    elements.map(element => ({
+      name: element.textContent?.trim() ?? '',
+      href: element.getAttribute('href'),
+    })),
+  );
+
+  for (const [index, { name, href }] of tabInfos.entries()) {
+    await test.step(`open the ${name} tab`, async () => {
+      await tabs.nth(index).click();
+      await expect(page).toHaveURL(url => url.pathname === href);
+      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      await takeScreenshot(
+        page,
+        testInfo,
+        `catalog-entity-${index + 1}-${slug}`,
+      );
+    });
+  }
+});
+
+const items = [
   { name: 'APIs', screenshot: 'apis' },
   { name: 'Docs', screenshot: 'docs' },
   { name: 'Notifications', screenshot: 'notifications' },
 ];
 
-for (const { name, screenshot, skip } of items) {
+for (const { name, screenshot } of items) {
   test(`navigates to ${name}`, async ({ page }, testInfo) => {
-    test.skip(!!skip, `The sidebar has no ${name} item in this version`);
-
     await clickSidebarItem(page, name);
     await takeScreenshot(page, testInfo, screenshot);
   });

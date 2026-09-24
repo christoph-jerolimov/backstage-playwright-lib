@@ -56,14 +56,23 @@ export async function waitForPageToSettle(page: Page) {
   await expect(
     page.getByRole('progressbar').filter({ visible: true }),
   ).toHaveCount(0);
-  // Wait for finite animations, e.g. fade-ins; spinners run forever.
+  // Wait for time-based animations that end, e.g. fade-ins. Spinners run
+  // forever and scroll-driven animations (e.g. of Backstage UI cards) only
+  // progress when scrolling. Give up after a few seconds in any case.
   await page.evaluate(() =>
-    Promise.all(
-      document
-        .getAnimations()
-        .filter(a => a.effect?.getComputedTiming().iterations !== Infinity)
-        .map(a => a.finished.catch(() => undefined)),
-    ),
+    Promise.race([
+      Promise.all(
+        document
+          .getAnimations()
+          .filter(
+            a =>
+              a.timeline === document.timeline &&
+              Number.isFinite(Number(a.effect?.getComputedTiming().endTime)),
+          )
+          .map(a => a.finished.catch(() => undefined)),
+      ),
+      new Promise(resolve => setTimeout(resolve, 5_000)),
+    ]),
   );
 }
 
@@ -97,11 +106,31 @@ export async function takeScreenshot(
   name: string,
 ) {
   await waitForPageToSettle(page);
+
+  // Instead of `fullPage: true`, grow the viewport to the page height:
+  // full-page screenshots render the layout of the new frontend system
+  // shifted to the left when the page is taller than the viewport.
+  const viewport = page.viewportSize();
+  const pageHeight = await page.evaluate(
+    () => document.documentElement.scrollHeight,
+  );
+  const grow = viewport && pageHeight > viewport.height;
+  if (grow) {
+    await page.setViewportSize({
+      width: viewport.width,
+      height: Math.min(pageHeight, 5_000),
+    });
+    await waitForPageToSettle(page);
+  }
+
   const screenshot = await page.screenshot({
     path: `screenshots/${name}-${fileVersion}.png`,
-    fullPage: true,
   });
   await testInfo.attach(name, { body: screenshot, contentType: 'image/png' });
+
+  if (grow) {
+    await page.setViewportSize(viewport);
+  }
 }
 
 export function sidebar(page: Page) {
@@ -140,4 +169,19 @@ export async function clickSidebarItem(page: Page, name: string) {
   await expect(
     page.getByRole('heading').filter({ visible: true }).first(),
   ).toBeVisible();
+}
+
+/**
+ * The tabs of an entity page. Up to Backstage 1.53 they are rendered as a tab
+ * list, since 1.54 as links in the "Content navigation".
+ */
+export function entityPageTabs(page: Page) {
+  return page
+    .getByRole('tablist')
+    .getByRole('tab')
+    .or(
+      page
+        .getByRole('navigation', { name: 'Content navigation' })
+        .getByRole('link'),
+    );
 }

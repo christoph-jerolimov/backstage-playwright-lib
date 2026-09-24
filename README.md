@@ -49,8 +49,10 @@ The tests take a screenshot at the end of each step:
 - `login-page.spec.ts` opens the login page, logs in as guest by clicking the
   *Enter* button and waits for the catalog page.
 - `sidebar-navigation.spec.ts` logs in as guest and navigates via the sidebar to
-  *Home*, *Catalog*, *APIs*, *Docs*, *Notifications* and *Settings*, and checks
-  that the language selection on *Settings* offers all configured languages.
+  *Home*, *Catalog*, *APIs*, *Docs*, *Notifications* and *Settings*. On
+  *Catalog* it opens the `example-website` entity and takes a screenshot of
+  each tab of the entity page. On *Settings* it checks that the language
+  selection offers all configured languages.
   *Home* is
   skipped for Backstage 1.49 to 1.53, which have no Home item, and *Catalog*
   for Backstage up to 1.48, where the catalog item is called Home.
