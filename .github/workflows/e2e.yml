@@ -1,0 +1,80 @@
+name: E2E tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: backstage-playwright-lib
+
+      - name: Checkout Backstage app
+        uses: actions/checkout@v4
+        with:
+          repository: christoph-jerolimov/backstage-history
+          path: backstage-history
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Backstage app dependencies
+        working-directory: backstage-history
+        run: yarn install --immutable
+
+      - name: Install Playwright project dependencies
+        working-directory: backstage-playwright-lib
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: backstage-playwright-lib
+        run: npx playwright install --with-deps chromium
+
+      - name: Start Backstage app
+        working-directory: backstage-history
+        run: |
+          nohup yarn start > ../backstage.log 2>&1 &
+
+      - name: Wait for Backstage app
+        run: |
+          for i in $(seq 1 180); do
+            if curl -sf http://localhost:3000 > /dev/null && curl -s http://localhost:7007 > /dev/null; then
+              echo "Backstage is up"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Backstage did not start in time"
+          cat backstage.log
+          exit 1
+
+      - name: Run Playwright tests
+        working-directory: backstage-playwright-lib
+        env:
+          PLAYWRIGHT_URL: http://localhost:3000
+        run: npx playwright test
+
+      - name: Print Backstage log
+        if: always()
+        run: cat backstage.log || true
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            backstage-playwright-lib/playwright-report/
+            backstage-playwright-lib/test-results/
+          retention-days: 7
+          if-no-files-found: ignore

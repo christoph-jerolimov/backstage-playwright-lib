@@ -1,0 +1,14 @@
+{
+  "name": "backstage-playwright-lib",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "tsc": "tsc"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
+  }
+}
