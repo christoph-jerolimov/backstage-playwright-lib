@@ -7,10 +7,40 @@ on:
   pull_request:
   workflow_dispatch:
 
+env:
+  BACKSTAGE_REPOSITORY: christoph-jerolimov/backstage-history
+
 jobs:
+  versions:
+    name: Resolve Backstage versions
+    runs-on: ubuntu-latest
+    outputs:
+      refs: ${{ steps.refs.outputs.refs }}
+    steps:
+      - name: Resolve refs
+        id: refs
+        # The main branch plus the latest patch release of the 10 most recent
+        # Backstage release lines (e.g. 1.55.0, 1.54.0, ...).
+        run: |
+          refs=$(git ls-remote --tags --refs "https://github.com/${BACKSTAGE_REPOSITORY}.git" \
+            | awk -F/ '{print $3}' \
+            | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
+            | sort -V -r \
+            | awk -F. '!seen[$1"."$2]++' \
+            | head -n 10 \
+            | jq -R -s -c 'split("\n") | map(select(length > 0)) | ["main"] + .')
+          echo "Testing against: $refs"
+          echo "refs=$refs" >> "$GITHUB_OUTPUT"
+
   e2e:
+    name: E2E (backstage-history ${{ matrix.ref }})
+    needs: versions
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        ref: ${{ fromJSON(needs.versions.outputs.refs) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,7 +50,8 @@ jobs:
       - name: Checkout Backstage app
         uses: actions/checkout@v4
         with:
-          repository: christoph-jerolimov/backstage-history
+          repository: ${{ env.BACKSTAGE_REPOSITORY }}
+          ref: ${{ matrix.ref }}
           path: backstage-history
 
       - name: Setup Node
@@ -72,7 +103,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.ref }}
           path: |
             backstage-playwright-lib/playwright-report/
             backstage-playwright-lib/test-results/
