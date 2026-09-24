@@ -21,12 +21,18 @@ const siteDir = process.argv[3] ?? 'site';
 const reportsDir = join(artifactsDir, 'reports');
 const screenshotsDir = join(artifactsDir, 'screenshots');
 
-// Must match the sanitizing in tests/initial-page.spec.ts.
+// Must match the sanitizing in tests/utils.ts.
 const sanitize = ref => ref.replace(/[^a-zA-Z0-9._-]/g, '-');
 
 const screenshotNames = [
-  { name: 'initial-page', label: 'Initial page' },
+  { name: 'login-page', label: 'Login page' },
   { name: 'after-login', label: 'After login' },
+  { name: 'home', label: 'Home' },
+  { name: 'catalog', label: 'Catalog' },
+  { name: 'apis', label: 'APIs' },
+  { name: 'docs', label: 'Docs' },
+  { name: 'notifications', label: 'Notifications' },
+  { name: 'settings', label: 'Settings' },
 ];
 
 const escapeHtml = value =>
@@ -98,7 +104,7 @@ const sections = versions
           <figcaption>${escapeHtml(label)}</figcaption>
         </figure>`
           : `<figure class="missing">
-          <div class="placeholder">No screenshot</div>
+          <div class="placeholder">No screenshot (skipped or failed)</div>
           <figcaption>${escapeHtml(label)}</figcaption>
         </figure>`,
       )

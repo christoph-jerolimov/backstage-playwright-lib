@@ -31,8 +31,15 @@ The tests run in parallel against the `main` branch and the latest patch
 release of the 10 most recent Backstage releases (e.g. `1.55.0`, `1.54.0`, …).
 The list of versions is resolved from the repository tags on each run.
 
-The test opens the initial page, takes a screenshot, logs in as guest by
-clicking the *Enter* button, and takes another screenshot of the catalog page.
+The tests take a screenshot at the end of each step:
+
+- `login-page.spec.ts` opens the login page, logs in as guest by clicking the
+  *Enter* button and waits for the catalog page.
+- `sidebar-navigation.spec.ts` logs in as guest and navigates via the sidebar to
+  *Home*, *Catalog*, *APIs*, *Docs*, *Notifications* and *Settings*. *Home* is
+  skipped for Backstage 1.49 to 1.53, which have no Home item, and *Catalog*
+  for Backstage up to 1.48, where the catalog item is called Home.
+
 Each version uploads its screenshots as a `screenshots-<version>` artifact, and
 all screenshots are also collected into a single `screenshots` artifact.
 
