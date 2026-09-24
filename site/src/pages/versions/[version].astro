@@ -1,0 +1,179 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import TestSummary from '../../components/TestSummary.astro';
+import {
+  compareUrl,
+  hasScreenshot,
+  reportUrl,
+  screenLabel,
+  screens,
+  screenshotUrl,
+  url,
+  versions,
+  type Version,
+} from '../../lib/results';
+
+export function getStaticPaths() {
+  return versions.map((version, index) => ({
+    params: { version: version.id },
+    // Versions are ordered newest first, so the next entry is older.
+    props: { version, older: versions[index + 1], newer: versions[index - 1] },
+  }));
+}
+
+interface Props {
+  version: Version;
+  older?: Version;
+  newer?: Version;
+}
+
+const { version, older, newer } = Astro.props;
+const shown = screens.filter(
+  screen =>
+    hasScreenshot(version, screen) ||
+    // Show missing screens that exist in other versions, except entity tabs,
+    // which differ by version anyway.
+    !screen.startsWith('catalog-entity-'),
+);
+---
+
+<Layout title={version.ref}>
+  <p class="muted"><a href={url('/')}>Overview</a> / Version</p>
+  <div class="title">
+    <h1>{version.ref}</h1>
+    <TestSummary version={version} />
+  </div>
+  <p class="links">
+    {
+      version.report ? (
+        <a class="pill" href={reportUrl(version)}>
+          Playwright report
+        </a>
+      ) : (
+        <span class="muted">No Playwright report</span>
+      )
+    }
+    {
+      older && (
+        <a class="pill" href={url(`versions/${older.id}/`)}>
+          ← Older: {older.ref}
+        </a>
+      )
+    }
+    {
+      newer && (
+        <a class="pill" href={url(`versions/${newer.id}/`)}>
+          Newer: {newer.ref} →
+        </a>
+      )
+    }
+  </p>
+
+  <section class="grid">
+    {
+      shown.map(screen => (
+        <figure id={screen}>
+          {hasScreenshot(version, screen) ? (
+            <a href={screenshotUrl(version, screen)}>
+              <img
+                class="thumb"
+                src={screenshotUrl(version, screen)}
+                alt={`${screenLabel(screen)} in ${version.ref}`}
+                loading="lazy"
+                width="1280"
+                height="720"
+              />
+            </a>
+          ) : (
+            <div class="placeholder">No screenshot (skipped or failed)</div>
+          )}
+          <figcaption>
+            <a href={url(`screens/${screen}/`)}>{screenLabel(screen)}</a>
+            {older && hasScreenshot(version, screen) && hasScreenshot(older, screen) && (
+              <>
+                {' · '}
+                <a href={compareUrl(screen, older.id, version.id)}>
+                  compare with {older.ref}
+                </a>
+              </>
+            )}
+          </figcaption>
+        </figure>
+      ))
+    }
+  </section>
+
+  {
+    version.tests && (
+      <section class="tests card">
+        <h2>Tests</h2>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Test</th>
+              <th scope="col">File</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {version.tests.map(test => (
+              <tr>
+                <td>{test.title}</td>
+                <td class="muted">
+                  <code>{test.file}</code>
+                </td>
+                <td class:list={['status', test.status]}>{test.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    )
+  }
+</Layout>
+
+<style>
+  .title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px 16px;
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0 24px;
+  }
+  .tests {
+    margin-top: 32px;
+    overflow-x: auto;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 8px;
+  }
+  th,
+  td {
+    text-align: left;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .status {
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+  .passed {
+    color: var(--passed);
+  }
+  .failed {
+    color: var(--failed);
+  }
+  .flaky {
+    color: var(--flaky);
+  }
+  .skipped {
+    color: var(--skipped);
+  }
+</style>

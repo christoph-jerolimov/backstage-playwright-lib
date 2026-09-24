@@ -5,4 +5,4 @@ blob-report/
 playwright/.cache/
 screenshots/
 artifacts/
-site/
+test-results.json

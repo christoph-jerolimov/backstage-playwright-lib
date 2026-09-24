@@ -1,0 +1,314 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { screenLabel, screens, url, versions } from '../lib/results';
+
+// Data for the client-side script.
+const compareData = {
+  screenshotsBase: url('screenshots/'),
+  screens: screens.map(name => ({ name, label: screenLabel(name) })),
+  versions: versions.map(({ id, ref, screenshots }) => ({ id, ref, screenshots })),
+};
+const oldest = versions[versions.length - 1];
+const newest = versions[0];
+---
+
+<Layout title="Compare" wide>
+  <p class="muted"><a href={url('/')}>Overview</a> / Compare</p>
+  <h1>Compare screenshots</h1>
+  <p class="muted">
+    Pick a screen and two versions. The selection is kept in the URL, so you can
+    share it.
+  </p>
+
+  <form class="controls card" id="compare-form">
+    <label>
+      Screen
+      <select name="screen">
+        {screens.map(name => <option value={name}>{screenLabel(name)}</option>)}
+      </select>
+    </label>
+    <label>
+      Version A
+      <select name="a">
+        {
+          versions.map(version => (
+            <option value={version.id} selected={version.id === oldest?.id}>
+              {version.ref}
+            </option>
+          ))
+        }
+      </select>
+    </label>
+    <button type="button" id="swap" aria-label="Swap versions A and B">⇄</button>
+    <label>
+      Version B
+      <select name="b">
+        {
+          versions.map(version => (
+            <option value={version.id} selected={version.id === newest?.id}>
+              {version.ref}
+            </option>
+          ))
+        }
+      </select>
+    </label>
+    <fieldset class="modes">
+      <legend>View</legend>
+      <label><input type="radio" name="mode" value="side" checked /> Side by side</label>
+      <label><input type="radio" name="mode" value="slider" /> Slider</label>
+      <label><input type="radio" name="mode" value="overlay" /> Overlay</label>
+      <label><input type="radio" name="mode" value="difference" /> Difference</label>
+    </fieldset>
+    <label class="range" data-for="slider overlay">
+      <span id="range-label">Position</span>
+      <input type="range" name="amount" min="0" max="100" value="50" />
+    </label>
+  </form>
+
+  <p class="hint muted" id="hint"></p>
+
+  <div class="viewer" id="viewer" data-mode="side">
+    <figure class="side-a">
+      <figcaption id="caption-a"></figcaption>
+      <div class="frame" id="frame-a"></div>
+    </figure>
+    <figure class="side-b">
+      <figcaption id="caption-b"></figcaption>
+      <div class="frame" id="frame-b"></div>
+    </figure>
+    <figure class="stacked">
+      <figcaption id="caption-stacked"></figcaption>
+      <div class="stack" id="stack"></div>
+    </figure>
+  </div>
+
+  <script type="application/json" id="compare-data" set:html={JSON.stringify(compareData)} />
+</Layout>
+
+<script>
+  interface CompareData {
+    screenshotsBase: string;
+    screens: { name: string; label: string }[];
+    versions: { id: string; ref: string; screenshots: string[] }[];
+  }
+
+  const data: CompareData = JSON.parse(
+    document.getElementById('compare-data')?.textContent ?? '{}',
+  );
+  const form = document.getElementById('compare-form') as HTMLFormElement;
+  const viewer = document.getElementById('viewer') as HTMLElement;
+  const hint = document.getElementById('hint') as HTMLElement;
+  const rangeLabel = document.getElementById('range-label') as HTMLElement;
+  const field = <T extends Element | RadioNodeList>(name: string) =>
+    form.elements.namedItem(name) as unknown as T;
+
+  const screenSelect = field<HTMLSelectElement>('screen');
+  const aSelect = field<HTMLSelectElement>('a');
+  const bSelect = field<HTMLSelectElement>('b');
+  const amount = field<HTMLInputElement>('amount');
+  const modes = ['side', 'slider', 'overlay', 'difference'];
+
+  const version = (id: string) => data.versions.find(v => v.id === id);
+  const label = (name: string) =>
+    data.screens.find(s => s.name === name)?.label ?? name;
+  const src = (screen: string, id: string) =>
+    `${data.screenshotsBase}${encodeURIComponent(`${screen}-${id}.png`)}`;
+
+  function image(screen: string, id: string, className: string) {
+    const v = version(id);
+    if (!v?.screenshots.includes(screen)) {
+      const missing = document.createElement('div');
+      missing.className = `placeholder ${className}`;
+      missing.textContent = `No screenshot in ${v?.ref ?? id}`;
+      return missing;
+    }
+    const img = document.createElement('img');
+    img.src = src(screen, id);
+    img.alt = `${label(screen)} in ${v.ref}`;
+    img.className = className;
+    return img;
+  }
+
+  // Load the selection from the URL.
+  const params = new URLSearchParams(location.search);
+  const setIfValid = (select: HTMLSelectElement, value: string | null) => {
+    if (value && [...select.options].some(option => option.value === value)) {
+      select.value = value;
+    }
+  };
+  setIfValid(screenSelect, params.get('screen'));
+  setIfValid(aSelect, params.get('a'));
+  setIfValid(bSelect, params.get('b'));
+  const initialMode = params.get('mode');
+  if (initialMode && modes.includes(initialMode)) {
+    field<RadioNodeList>('mode').value = initialMode;
+  }
+  if (params.get('amount')) {
+    amount.value = params.get('amount') ?? '50';
+  }
+
+  function render() {
+    const screen = screenSelect.value;
+    const a = aSelect.value;
+    const b = bSelect.value;
+    const mode = field<RadioNodeList>('mode').value || 'side';
+    const value = Number(amount.value);
+
+    viewer.dataset.mode = mode;
+    viewer.style.setProperty('--amount', `${value}%`);
+    rangeLabel.textContent = mode === 'overlay' ? 'Opacity of B' : 'Position';
+    for (const range of form.querySelectorAll<HTMLElement>('.range')) {
+      range.hidden = !(range.dataset.for ?? '').split(' ').includes(mode);
+    }
+
+    const refA = version(a)?.ref ?? a;
+    const refB = version(b)?.ref ?? b;
+    document.getElementById('caption-a')!.textContent = `A: ${refA}`;
+    document.getElementById('caption-b')!.textContent = `B: ${refB}`;
+    document.getElementById('caption-stacked')!.textContent = `A: ${refA} · B: ${refB}`;
+    document.getElementById('frame-a')!.replaceChildren(image(screen, a, 'shot'));
+    document.getElementById('frame-b')!.replaceChildren(image(screen, b, 'shot'));
+    document
+      .getElementById('stack')!
+      .replaceChildren(image(screen, a, 'shot layer-a'), image(screen, b, 'shot layer-b'));
+
+    hint.textContent = {
+      side: 'A on the left, B on the right.',
+      slider: 'A on the left of the line, B on the right. Move the slider to compare.',
+      overlay: 'B on top of A. Change the opacity of B to compare.',
+      difference:
+        'Pixel difference of A and B: identical areas are black, changes are bright.',
+    }[mode] ?? '';
+
+    const next = new URLSearchParams({ screen, a, b, mode });
+    if (mode === 'slider' || mode === 'overlay') {
+      next.set('amount', String(value));
+    }
+    history.replaceState(null, '', `${location.pathname}?${next}`);
+  }
+
+  document.getElementById('swap')?.addEventListener('click', () => {
+    [aSelect.value, bSelect.value] = [bSelect.value, aSelect.value];
+    render();
+  });
+  form.addEventListener('input', render);
+  form.addEventListener('submit', event => event.preventDefault());
+  render();
+</script>
+
+<style>
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px 16px;
+    margin: 16px 0 8px;
+  }
+  .controls label {
+    display: grid;
+    gap: 4px;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  .controls select {
+    color: var(--fg);
+    min-width: 0;
+  }
+  #swap {
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    cursor: pointer;
+  }
+  .modes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    border: 0;
+    padding: 0;
+    margin: 0;
+  }
+  .modes legend {
+    font-size: 0.875rem;
+    color: var(--muted);
+    padding: 0;
+    margin-bottom: 4px;
+  }
+  .modes label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--fg);
+    font-size: 0.95rem;
+  }
+  .controls .range[hidden] {
+    display: none;
+  }
+  .range input {
+    width: 200px;
+    max-width: 100%;
+  }
+  .hint {
+    min-height: 1.5em;
+    margin: 8px 0 16px;
+  }
+  .viewer figure {
+    margin: 0;
+  }
+  .viewer figcaption {
+    margin: 0 0 6px;
+    font-weight: 600;
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+  }
+  .viewer[data-mode='side'] {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+  }
+  .viewer[data-mode='side'] .stacked,
+  .viewer:not([data-mode='side']) .side-a,
+  .viewer:not([data-mode='side']) .side-b {
+    display: none;
+  }
+  .viewer :global(.shot) {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  .stack {
+    display: grid;
+    position: relative;
+  }
+  .stack > :global(*) {
+    grid-area: 1 / 1;
+    align-self: start;
+  }
+  .viewer[data-mode='slider'] .stack :global(.layer-b) {
+    clip-path: inset(0 0 0 var(--amount));
+  }
+  .viewer[data-mode='slider'] .stack::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--amount);
+    width: 2px;
+    margin-left: -1px;
+    background: var(--accent);
+    pointer-events: none;
+  }
+  .viewer[data-mode='overlay'] .stack :global(.layer-b) {
+    opacity: var(--amount);
+  }
+  .viewer[data-mode='difference'] .stack {
+    isolation: isolate;
+    background: #000;
+  }
+  .viewer[data-mode='difference'] .stack :global(.layer-b) {
+    mix-blend-mode: difference;
+  }
+</style>

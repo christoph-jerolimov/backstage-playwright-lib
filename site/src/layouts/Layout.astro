@@ -1,0 +1,254 @@
+---
+import { data, url } from '../lib/results';
+
+interface Props {
+  title: string;
+  /** Wider content area, e.g. for the version matrix. */
+  wide?: boolean;
+}
+
+const { title, wide = false } = Astro.props;
+const pageTitle =
+  title === 'Overview'
+    ? 'Backstage Playwright results'
+    : `${title} · Backstage Playwright results`;
+const generatedAt = `${data.generatedAt.replace('T', ' ').slice(0, 16)} UTC`;
+const path = Astro.url.pathname.replace(/\/$/, '');
+const isActive = (href: string) => path === href.replace(/\/$/, '');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class:list={['container', { wide }]}>
+        <a class="brand" href={url('/')}>Backstage Playwright results</a>
+        <nav aria-label="Main">
+          <a href={url('/')} aria-current={isActive(url('/')) ? 'page' : undefined}
+            >Overview</a
+          >
+          <a
+            href={url('compare/')}
+            aria-current={isActive(url('compare/')) ? 'page' : undefined}
+            >Compare</a
+          >
+        </nav>
+      </div>
+    </header>
+    <main class:list={['container', { wide }]}>
+      <slot />
+    </main>
+    <footer class:list={['container', { wide }]}>
+      Generated {generatedAt}
+      {
+        data.commit && (
+          <>
+            {' · '}commit{' '}
+            {data.commitUrl ? (
+              <a href={data.commitUrl}>
+                <code>{data.commit.slice(0, 7)}</code>
+              </a>
+            ) : (
+              <code>{data.commit.slice(0, 7)}</code>
+            )}
+          </>
+        )
+      }
+      {
+        data.runUrl && (
+          <>
+            {' · '}
+            <a href={data.runUrl}>workflow run</a>
+          </>
+        )
+      }
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f7f8;
+    --fg: #1b1f23;
+    --muted: #5c6670;
+    --card: #ffffff;
+    --border: #d8dde2;
+    --accent: #0b6e5f;
+    --accent-soft: #e0f2ee;
+    --passed: #1a7f37;
+    --failed: #cf222e;
+    --flaky: #9a6700;
+    --skipped: #6e7781;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111417;
+      --fg: #e6e9ec;
+      --muted: #9aa4ad;
+      --card: #1a1f24;
+      --border: #2c333a;
+      --accent: #4fd1b5;
+      --accent-soft: #173a33;
+      --passed: #3fb950;
+      --failed: #f85149;
+      --flaky: #d29922;
+      --skipped: #8b949e;
+    }
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font:
+      15px/1.5 system-ui,
+      -apple-system,
+      'Segoe UI',
+      Roboto,
+      sans-serif;
+  }
+  a {
+    color: var(--accent);
+  }
+  h1 {
+    font-size: 1.6rem;
+    margin: 0 0 4px;
+  }
+  h2 {
+    font-size: 1.2rem;
+    margin: 0;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-inline: 16px;
+  }
+  .container.wide {
+    max-width: 1800px;
+  }
+  main {
+    padding-top: 24px;
+    padding-bottom: 48px;
+  }
+  .muted {
+    color: var(--muted);
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .thumb {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    object-position: top;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+  }
+  .placeholder {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 8px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  figure {
+    margin: 0;
+  }
+  figcaption {
+    margin-top: 6px;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .pill {
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--card);
+    text-decoration: none;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  select,
+  input,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+  select,
+  input[type='search'] {
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    max-width: 100%;
+  }
+  code {
+    font-size: 0.9em;
+  }
+</style>
+
+<style>
+  .site-header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+  }
+  .site-header .container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 24px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+  .brand {
+    font-weight: 700;
+    color: var(--fg);
+    text-decoration: none;
+  }
+  nav {
+    display: flex;
+    gap: 16px;
+  }
+  nav a {
+    text-decoration: none;
+    color: var(--muted);
+  }
+  nav a[aria-current='page'] {
+    color: var(--fg);
+    font-weight: 600;
+  }
+  footer {
+    padding-bottom: 32px;
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+</style>

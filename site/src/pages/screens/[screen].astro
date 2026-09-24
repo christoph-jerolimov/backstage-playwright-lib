@@ -1,0 +1,114 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import {
+  compareUrl,
+  hasScreenshot,
+  screenLabel,
+  screens,
+  screenshotUrl,
+  url,
+  versions,
+} from '../../lib/results';
+
+export function getStaticPaths() {
+  return screens.map(screen => ({ params: { screen } }));
+}
+
+const { screen } = Astro.params as { screen: string };
+const label = screenLabel(screen);
+const withScreenshot = versions.filter(version => hasScreenshot(version, screen));
+const index = screens.indexOf(screen);
+const previous = screens[index - 1];
+const next = screens[index + 1];
+---
+
+<Layout title={label}>
+  <p class="muted"><a href={url('/')}>Overview</a> / Screen</p>
+  <h1>{label}</h1>
+  <p class="muted">
+    {withScreenshot.length} of {versions.length} versions have this screenshot.
+  </p>
+  <p class="links">
+    {
+      previous && (
+        <a class="pill" href={url(`screens/${previous}/`)}>
+          ← {screenLabel(previous)}
+        </a>
+      )
+    }
+    {
+      next && (
+        <a class="pill" href={url(`screens/${next}/`)}>
+          {screenLabel(next)} →
+        </a>
+      )
+    }
+    {
+      withScreenshot.length >= 2 && (
+        <a
+          class="pill"
+          href={compareUrl(
+            screen,
+            withScreenshot[withScreenshot.length - 1].id,
+            withScreenshot[0].id,
+          )}
+        >
+          Compare oldest with newest
+        </a>
+      )
+    }
+  </p>
+
+  <section class="grid">
+    {
+      versions.map((version, i) => {
+        // The next older version that also has this screenshot.
+        const older = versions
+          .slice(i + 1)
+          .find(candidate => hasScreenshot(candidate, screen));
+        return (
+          <figure id={version.id}>
+            {hasScreenshot(version, screen) ? (
+              <a href={screenshotUrl(version, screen)}>
+                <img
+                  class="thumb"
+                  src={screenshotUrl(version, screen)}
+                  alt={`${label} in ${version.ref}`}
+                  loading="lazy"
+                  width="1280"
+                  height="720"
+                />
+              </a>
+            ) : (
+              <div class="placeholder">No screenshot (skipped or failed)</div>
+            )}
+            <figcaption>
+              <a href={url(`versions/${version.id}/`)}>{version.ref}</a>
+              {hasScreenshot(version, screen) && older && (
+                <>
+                  {' · '}
+                  <a href={compareUrl(screen, older.id, version.id)}>
+                    compare with {older.ref}
+                  </a>
+                </>
+              )}
+            </figcaption>
+          </figure>
+        );
+      })
+    }
+  </section>
+</Layout>
+
+<style>
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0 24px;
+  }
+  figure:target .thumb {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+</style>

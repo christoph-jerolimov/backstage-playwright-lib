@@ -1,0 +1,63 @@
+---
+import { summarize, type Version } from '../lib/results';
+
+interface Props {
+  version: Version;
+}
+
+const summary = summarize(Astro.props.version);
+const parts = summary
+  ? (['failed', 'flaky', 'passed', 'skipped'] as const).filter(
+      status => summary[status] > 0,
+    )
+  : [];
+---
+
+{
+  summary ? (
+    <span class="summary">
+      {parts.map(status => (
+        <span class:list={['count', status]}>
+          {summary[status]} {status}
+        </span>
+      ))}
+    </span>
+  ) : (
+    <span class="summary muted">No test results</span>
+  )
+}
+
+<style>
+  .summary {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .count {
+    white-space: nowrap;
+  }
+  .count::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 5px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .passed {
+    color: var(--passed);
+  }
+  .failed {
+    color: var(--failed);
+    font-weight: 600;
+  }
+  .flaky {
+    color: var(--flaky);
+  }
+  .skipped {
+    color: var(--skipped);
+  }
+</style>

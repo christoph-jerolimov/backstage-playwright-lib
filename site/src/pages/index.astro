@@ -1,0 +1,268 @@
+---
+import Layout from '../layouts/Layout.astro';
+import TestSummary from '../components/TestSummary.astro';
+import {
+  hasScreenshot,
+  reportUrl,
+  screenLabel,
+  screens,
+  screenshotUrl,
+  url,
+  versions,
+} from '../lib/results';
+---
+
+<Layout title="Overview" wide>
+  <h1>Backstage Playwright results</h1>
+  <p class="muted">
+    Playwright tests of the Backstage app{' '}
+    <a href="https://github.com/christoph-jerolimov/backstage-history">backstage-history</a>{' '}
+    across {versions.length} versions. Open a version or a screen for details, or{' '}
+    <a href={url('compare/')}>compare</a> two versions.
+  </p>
+
+  <section aria-labelledby="versions-heading">
+    <h2 id="versions-heading">Versions</h2>
+    <ul class="versions">
+      {
+        versions.map(version => (
+          <li class="card">
+            <a class="version-name" href={url(`versions/${version.id}/`)}>
+              {version.ref}
+            </a>
+            <TestSummary version={version} />
+            <span class="muted small">
+              {version.screenshots.length} screenshots
+              {version.report && (
+                <>
+                  {' · '}
+                  <a href={reportUrl(version)}>report</a>
+                </>
+              )}
+            </span>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section aria-labelledby="matrix-heading">
+    <div class="matrix-header">
+      <h2 id="matrix-heading">Screens by version</h2>
+      <div class="filters">
+        <input
+          type="search"
+          id="screen-filter"
+          placeholder="Filter screens"
+          aria-label="Filter screens"
+        />
+        <details class="version-filter">
+          <summary>Versions</summary>
+          <div class="version-options">
+            {
+              versions.map(version => (
+                <label>
+                  <input type="checkbox" value={version.id} checked />
+                  {version.ref}
+                </label>
+              ))
+            }
+          </div>
+        </details>
+      </div>
+    </div>
+
+    {
+      screens.length === 0 ? (
+        <p class="muted">No screenshots.</p>
+      ) : (
+        <div class="matrix-scroll">
+          <table class="matrix">
+            <thead>
+              <tr>
+                <th scope="col">Screen</th>
+                {versions.map(version => (
+                  <th scope="col" data-version={version.id}>
+                    <a href={url(`versions/${version.id}/`)}>{version.ref}</a>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {screens.map(screen => (
+                <tr data-screen={`${screen} ${screenLabel(screen)}`.toLowerCase()}>
+                  <th scope="row">
+                    <a href={url(`screens/${screen}/`)}>{screenLabel(screen)}</a>
+                  </th>
+                  {versions.map(version => (
+                    <td data-version={version.id}>
+                      {hasScreenshot(version, screen) ? (
+                        <a
+                          href={url(`screens/${screen}/#${version.id}`)}
+                          title={`${screenLabel(screen)} in ${version.ref}`}
+                        >
+                          <img
+                            class="thumb"
+                            src={screenshotUrl(version, screen)}
+                            alt={`${screenLabel(screen)} in ${version.ref}`}
+                            loading="lazy"
+                            width="1280"
+                            height="720"
+                          />
+                        </a>
+                      ) : (
+                        <div class="placeholder">—</div>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )
+    }
+  </section>
+</Layout>
+
+<script>
+  const table = document.querySelector<HTMLTableElement>('.matrix');
+  const screenFilter = document.querySelector<HTMLInputElement>('#screen-filter');
+  const checkboxes = document.querySelectorAll<HTMLInputElement>(
+    '.version-options input[type="checkbox"]',
+  );
+
+  function applyFilters() {
+    if (!table) return;
+    const query = screenFilter?.value.trim().toLowerCase() ?? '';
+    for (const row of table.querySelectorAll<HTMLTableRowElement>('tbody tr')) {
+      row.hidden = query !== '' && !row.dataset.screen?.includes(query);
+    }
+    const hidden = new Set(
+      [...checkboxes].filter(box => !box.checked).map(box => box.value),
+    );
+    for (const cell of table.querySelectorAll<HTMLElement>('[data-version]')) {
+      cell.hidden = hidden.has(cell.dataset.version ?? '');
+    }
+  }
+
+  screenFilter?.addEventListener('input', applyFilters);
+  checkboxes.forEach(box => box.addEventListener('change', applyFilters));
+</script>
+
+<style>
+  section {
+    margin-top: 28px;
+  }
+  .versions {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .versions li {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 14px;
+  }
+  .version-name {
+    font-weight: 700;
+    font-size: 1.05rem;
+    text-decoration: none;
+    font-variant-numeric: tabular-nums;
+  }
+  .small {
+    font-size: 0.85rem;
+  }
+  .matrix-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .version-filter {
+    position: relative;
+  }
+  .version-filter summary {
+    cursor: pointer;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+  }
+  .version-options {
+    position: absolute;
+    right: 0;
+    z-index: 10;
+    margin-top: 4px;
+    padding: 8px 12px;
+    display: grid;
+    gap: 4px;
+    min-width: 160px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgb(0 0 0 / 0.15);
+  }
+  .version-options label {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    white-space: nowrap;
+  }
+  .matrix-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--card);
+  }
+  .matrix {
+    border-collapse: collapse;
+    min-width: 100%;
+  }
+  .matrix th,
+  .matrix td {
+    padding: 8px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .matrix thead th {
+    position: sticky;
+    top: 0;
+    background: var(--card);
+    text-align: left;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .matrix tbody th {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--card);
+    text-align: left;
+    font-weight: 600;
+    min-width: 140px;
+    max-width: 180px;
+  }
+  .matrix td {
+    min-width: 180px;
+    width: 220px;
+  }
+  .matrix [hidden] {
+    display: none;
+  }
+  .matrix tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+</style>
