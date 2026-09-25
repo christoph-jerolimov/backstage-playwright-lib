@@ -54,8 +54,9 @@ The tests take a screenshot at the end of each step:
   each tab of the entity page. On *Settings* it checks that the language
   selection offers all configured languages.
   *Home* is
-  skipped for Backstage 1.49 to 1.53, which have no Home item, and *Catalog*
-  for Backstage up to 1.48, where the catalog item is called Home.
+  skipped for Backstage 1.49 to 1.53, which have no Home item. Up to
+  Backstage 1.48 the catalog item is called Home, so the *Catalog* test
+  clicks Home there.
 
 Each version uploads its screenshots as a `screenshots-<version>` artifact, and
 all screenshots are also collected into a single `screenshots` artifact.

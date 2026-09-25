@@ -38,14 +38,10 @@ test('navigates to Home', async ({ page }, testInfo) => {
 test('navigates to Catalog and opens the example-website entity', async ({
   page,
 }, testInfo) => {
-  test.skip(
-    // Before the new frontend system, the sidebar item for the catalog was
-    // called Home.
-    isVersionBetween('1.0', '1.48'),
-    'The sidebar has no Catalog item in this version',
-  );
-
-  await clickSidebarItem(page, 'Catalog');
+  // Before the new frontend system, the sidebar item for the catalog was
+  // called Home.
+  const catalogItem = isVersionBetween('1.0', '1.48') ? 'Home' : 'Catalog';
+  await clickSidebarItem(page, catalogItem);
   await takeScreenshot(page, testInfo, 'catalog');
 
   await page.getByRole('link', { name: 'example-website', exact: true }).click();
