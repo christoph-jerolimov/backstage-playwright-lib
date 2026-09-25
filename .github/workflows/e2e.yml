@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Resolve refs
         id: refs
-        # The main branch plus the latest patch release of the 10 most recent
+        # The main branch plus the latest patch release of the 20 most recent
         # Backstage release lines (e.g. 1.55.0, 1.54.0, ...).
         run: |
           refs=$(git ls-remote --tags --refs "https://github.com/${BACKSTAGE_REPOSITORY}.git" \
@@ -27,7 +27,7 @@ jobs:
             | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
             | sort -V -r \
             | awk -F. '!seen[$1"."$2]++' \
-            | head -n 10 \
+            | head -n 20 \
             | jq -R -s -c 'split("\n") | map(select(length > 0)) | ["main"] + .')
           echo "Testing against: $refs"
           echo "refs=$refs" >> "$GITHUB_OUTPUT"
@@ -78,8 +78,14 @@ jobs:
 
       - name: Start Backstage app
         working-directory: backstage-history
+        # Up to Backstage 1.37, `yarn start` only starts the frontend and the
+        # backend is started with `yarn start-backend`; `yarn dev` starts both.
         run: |
-          nohup yarn start > ../backstage.log 2>&1 &
+          if node -e "process.exit(require('./package.json').scripts['start-backend'] ? 0 : 1)"; then
+            nohup yarn dev > ../backstage.log 2>&1 &
+          else
+            nohup yarn start > ../backstage.log 2>&1 &
+          fi
 
       - name: Wait for Backstage app
         run: |

@@ -24,8 +24,9 @@ to target a different Backstage instance.
 
 The [E2E workflow](.github/workflows/e2e.yml) clones
 [backstage-history](https://github.com/christoph-jerolimov/backstage-history),
-installs its dependencies, starts it with `yarn start` and runs the Playwright
-tests against it.
+installs its dependencies, starts it with `yarn start` (`yarn dev` up to
+Backstage 1.37, where `yarn start` only starts the frontend) and runs the
+Playwright tests against it.
 
 Before starting the app,
 [`scripts/setup-backstage.mjs`](scripts/setup-backstage.mjs) enables
@@ -41,7 +42,7 @@ translations (English and German) using the config files in
   the script adds `__experimentalTranslations` to `createApp()` in `App.tsx`.
 
 The tests run in parallel against the `main` branch and the latest patch
-release of the 10 most recent Backstage releases (e.g. `1.55.0`, `1.54.0`, …).
+release of the 20 most recent Backstage releases (e.g. `1.55.0`, `1.54.0`, …).
 The list of versions is resolved from the repository tags on each run.
 
 The tests take a screenshot at the end of each step:
@@ -56,7 +57,8 @@ The tests take a screenshot at the end of each step:
   *Home* is
   skipped for Backstage 1.49 to 1.53, which have no Home item. Up to
   Backstage 1.48 the catalog item is called Home, so the *Catalog* test
-  clicks Home there.
+  clicks Home there. *Notifications* is skipped up to Backstage 1.41, whose app
+  template doesn't include the notifications plugin.
 
 Each version uploads its screenshots as a `screenshots-<version>` artifact, and
 all screenshots are also collected into a single `screenshots` artifact.

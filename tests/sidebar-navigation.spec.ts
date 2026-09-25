@@ -78,11 +78,18 @@ test('navigates to Catalog and opens the example-website entity', async ({
 const items = [
   { name: 'APIs', screenshot: 'apis' },
   { name: 'Docs', screenshot: 'docs' },
-  { name: 'Notifications', screenshot: 'notifications' },
+  {
+    name: 'Notifications',
+    screenshot: 'notifications',
+    // The notifications plugin is part of the app template since 1.42.
+    skip: isVersionBetween('1.0', '1.41'),
+  },
 ];
 
-for (const { name, screenshot } of items) {
+for (const { name, screenshot, skip } of items) {
   test(`navigates to ${name}`, async ({ page }, testInfo) => {
+    test.skip(!!skip, `The sidebar has no ${name} item in this version`);
+
     await clickSidebarItem(page, name);
     await takeScreenshot(page, testInfo, screenshot);
   });
