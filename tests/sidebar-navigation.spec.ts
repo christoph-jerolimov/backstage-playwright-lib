@@ -1,6 +1,5 @@
 import {
   clickSidebarItem,
-  entityPageTabs,
   expect,
   isVersionBetween,
   loginAsGuest,
@@ -37,6 +36,7 @@ test('navigates to Home', async ({ page }, testInfo) => {
 
 test('navigates to Catalog and opens the example-website entity', async ({
   page,
+  backstagePage,
 }, testInfo) => {
   // Before the new frontend system, the sidebar item for the catalog was
   // called Home.
@@ -52,7 +52,7 @@ test('navigates to Catalog and opens the example-website entity', async ({
 
   // The tabs of the entity page differ between versions, so take a
   // screenshot of each tab that is shown.
-  const tabs = entityPageTabs(page);
+  const tabs = backstagePage.pageTabs();
   await expect(tabs.first()).toBeVisible();
   const tabInfos = await tabs.evaluateAll(elements =>
     elements.map(element => ({

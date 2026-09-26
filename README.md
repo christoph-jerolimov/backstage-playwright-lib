@@ -20,6 +20,28 @@ npm test
 The tests run against `http://localhost:3000` by default. Set `PLAYWRIGHT_URL`
 to target a different Backstage instance.
 
+## Page object
+
+[`tests/backstage-page.ts`](tests/backstage-page.ts) provides locators for the
+areas of a Backstage page that work across the old and the new frontend
+system. Tests get it as the `backstagePage` fixture:
+
+| Function         | Area                                                                  |
+| ---------------- | --------------------------------------------------------------------- |
+| `sidebar()`      | The sidebar                                                           |
+| `pluginHeader()` | The topmost header: plugin header, or page header (old frontend)      |
+| `allHeaders()`   | All headers, e.g. plugin header and entity header                     |
+| `pageContent()`  | Everything next to the sidebar, including the plugin header           |
+| `pageTabs()`     | The tabs of the page's tab bar, e.g. of an entity or settings page    |
+| `allTabs()`      | All tabs of the page, including tabs within the content              |
+| `tabContent()`   | The content below the headers and tabs, e.g. of the selected tab      |
+
+```ts
+test('shows the tabs', async ({ page, backstagePage }) => {
+  await expect(backstagePage.pageTabs().first()).toBeVisible();
+});
+```
+
 ## CI
 
 The [E2E workflow](.github/workflows/e2e.yml) clones

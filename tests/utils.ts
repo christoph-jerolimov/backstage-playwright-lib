@@ -5,15 +5,17 @@ import {
   type Request,
   type TestInfo,
 } from '@playwright/test';
+import { BackstagePage } from './backstage-page';
 
 const inflightRequests = new WeakMap<Page, Set<Request>>();
 
 /**
  * The Playwright `test` function, extended to track the requests of each
- * page. Backstage is a single-page app, so `waitForLoadState('networkidle')`
- * doesn't wait for requests that are started after clicking a link.
+ * page (Backstage is a single-page app, so `waitForLoadState('networkidle')`
+ * doesn't wait for requests that are started after clicking a link) and with
+ * a `backstagePage` fixture for the areas of a Backstage page.
  */
-export const test = base.extend({
+export const test = base.extend<{ backstagePage: BackstagePage }>({
   page: async ({ page }, use) => {
     const requests = new Set<Request>();
     inflightRequests.set(page, requests);
@@ -26,6 +28,9 @@ export const test = base.extend({
     page.on('requestfinished', request => requests.delete(request));
     page.on('requestfailed', request => requests.delete(request));
     await use(page);
+  },
+  backstagePage: async ({ page }, use) => {
+    await use(new BackstagePage(page));
   },
 });
 
@@ -133,10 +138,6 @@ export async function takeScreenshot(
   }
 }
 
-export function sidebar(page: Page) {
-  return page.getByRole('navigation', { name: 'sidebar nav' });
-}
-
 /** Logs in as guest on the sign-in page. */
 export async function loginAsGuest(page: Page) {
   await test.step('login as guest', async () => {
@@ -144,7 +145,9 @@ export async function loginAsGuest(page: Page) {
     const enterButton = page.getByRole('button', { name: 'Enter' });
     await enterButton.click();
     await expect(enterButton).toBeHidden();
-    await expect(sidebar(page).getByRole('link').first()).toBeVisible();
+    await expect(
+      new BackstagePage(page).sidebar().getByRole('link').first(),
+    ).toBeVisible();
   });
 }
 
@@ -153,7 +156,8 @@ export async function loginAsGuest(page: Page) {
  * shown. The Backstage logo is also a link named "Home", but without text.
  */
 export async function clickSidebarItem(page: Page, name: string) {
-  const link = sidebar(page)
+  const link = new BackstagePage(page)
+    .sidebar()
     .getByRole('link', { name, exact: true })
     .filter({ hasText: name })
     // Backstage 1.50 to 1.52 show the Notifications item twice.
@@ -169,19 +173,4 @@ export async function clickSidebarItem(page: Page, name: string) {
   await expect(
     page.getByRole('heading').filter({ visible: true }).first(),
   ).toBeVisible();
-}
-
-/**
- * The tabs of an entity page. Up to Backstage 1.53 they are rendered as a tab
- * list, since 1.54 as links in the "Content navigation".
- */
-export function entityPageTabs(page: Page) {
-  return page
-    .getByRole('tablist')
-    .getByRole('tab')
-    .or(
-      page
-        .getByRole('navigation', { name: 'Content navigation' })
-        .getByRole('link'),
-    );
 }

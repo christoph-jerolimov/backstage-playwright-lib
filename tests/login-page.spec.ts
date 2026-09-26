@@ -1,6 +1,9 @@
-import { expect, sidebar, takeScreenshot, test } from './utils';
+import { expect, takeScreenshot, test } from './utils';
 
-test('opens the login page and logs in as guest', async ({ page }, testInfo) => {
+test('opens the login page and logs in as guest', async ({
+  page,
+  backstagePage,
+}, testInfo) => {
   const response = await page.goto('/');
 
   expect(response?.ok()).toBeTruthy();
@@ -12,7 +15,7 @@ test('opens the login page and logs in as guest', async ({ page }, testInfo) => 
   await enterButton.click();
 
   await expect(enterButton).toBeHidden();
-  await expect(sidebar(page).getByRole('link').first()).toBeVisible();
+  await expect(backstagePage.sidebar().getByRole('link').first()).toBeVisible();
   // The guest lands on the catalog page after logging in.
   await expect(
     page.getByRole('heading', { name: 'My Company Catalog' }),
