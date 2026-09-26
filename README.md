@@ -22,7 +22,7 @@ to target a different Backstage instance.
 
 ## Page object
 
-[`tests/backstage-page.ts`](tests/backstage-page.ts) provides locators for the
+[`tests/backstage-page.ts`](tests/backstage-page.ts) provides locators (and a few actions) for the
 areas of a Backstage page that work across the old and the new frontend
 system. Tests get it as the `backstagePage` fixture:
 
@@ -31,6 +31,7 @@ system. Tests get it as the `backstagePage` fixture:
 | `sidebar()`            | The sidebar                                                             |
 | `allSidebarItems()`    | All sidebar items with a label, e.g. Home, Catalog and Search           |
 | `sidebarItem(label)`   | One sidebar item, e.g. `sidebarItem('Catalog')`                         |
+| `clickSidebarItem(label)` | Clicks a sidebar item and waits until its page is shown              |
 | `pluginHeader()`       | The topmost header: plugin header, or page header (old frontend)        |
 | `allHeaders()`         | All headers, e.g. plugin header and entity header                       |
 | `pageContent()`        | Everything next to the sidebar, including the plugin header             |
@@ -68,7 +69,7 @@ some labels in capitals via CSS.
 
 ```ts
 test('filters the catalog', async ({ backstagePage }) => {
-  await backstagePage.sidebarItem('Catalog').click();
+  await backstagePage.clickSidebarItem('Catalog');
   await backstagePage.contentFilter().fill('example');
   await expect(backstagePage.table().getByRole('row')).toHaveCount(2);
 });

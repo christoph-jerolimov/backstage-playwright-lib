@@ -1,10 +1,4 @@
-import {
-  clickSidebarItem,
-  expect,
-  loginAsGuest,
-  takeScreenshot,
-  test,
-} from './utils';
+import { expect, loginAsGuest, takeScreenshot, test } from './utils';
 
 test.beforeEach(async ({ page }) => {
   await loginAsGuest(page);
@@ -12,11 +6,14 @@ test.beforeEach(async ({ page }) => {
 
 test('navigates to APIs and opens the example-grpc-api entity', async ({
   page,
+  backstagePage,
 }, testInfo) => {
-  await clickSidebarItem(page, 'APIs');
+  await backstagePage.clickSidebarItem('APIs');
   await takeScreenshot(page, testInfo, 'apis');
 
-  await page.getByRole('link', { name: 'example-grpc-api', exact: true }).click();
+  await page
+    .getByRole('link', { name: 'example-grpc-api', exact: true })
+    .click();
   // Some versions render the favorite button inside the heading.
   await expect(
     page.getByRole('heading', { name: 'example-grpc-api' }).first(),

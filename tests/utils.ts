@@ -148,19 +148,3 @@ export async function loginAsGuest(page: Page) {
     ).toBeVisible();
   });
 }
-
-/** Clicks the sidebar item with the given label and waits for its page. */
-export async function clickSidebarItem(page: Page, name: string | RegExp) {
-  const link = new BackstagePage(page).sidebarItem(name);
-  const href = await link.getAttribute('href');
-  await link.click();
-  // Some pages redirect to a sub page, e.g. /settings to /settings/general.
-  await expect(page).toHaveURL(
-    url =>
-      url.pathname === href ||
-      url.pathname.startsWith(`${href?.replace(/\/$/, '')}/`),
-  );
-  await expect(
-    page.getByRole('heading').filter({ visible: true }).first(),
-  ).toBeVisible();
-}

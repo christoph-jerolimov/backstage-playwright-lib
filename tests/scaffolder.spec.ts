@@ -1,10 +1,4 @@
-import {
-  clickSidebarItem,
-  expect,
-  loginAsGuest,
-  takeScreenshot,
-  test,
-} from './utils';
+import { expect, loginAsGuest, takeScreenshot, test } from './utils';
 
 test.beforeEach(async ({ page }) => {
   await loginAsGuest(page);
@@ -15,7 +9,7 @@ test('navigates to Create and chooses the Example Node.js Template', async ({
   backstagePage,
 }, testInfo) => {
   // The sidebar item is called "Create..." in older versions.
-  await clickSidebarItem(page, /^\s*create(\.\.\.)?\s*$/i);
+  await backstagePage.clickSidebarItem(/^\s*create(\.\.\.)?\s*$/i);
   await takeScreenshot(page, testInfo, 'create');
 
   const templateCard = backstagePage.card('Example Node.js Template');

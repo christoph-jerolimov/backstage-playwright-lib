@@ -1,5 +1,4 @@
 import {
-  clickSidebarItem,
   expect,
   isVersionBetween,
   loginAsGuest,
@@ -18,10 +17,12 @@ test('navigates to Catalog and opens the example-website entity', async ({
   // Before the new frontend system, the sidebar item for the catalog was
   // called Home.
   const catalogItem = isVersionBetween('1.0', '1.48') ? 'Home' : 'Catalog';
-  await clickSidebarItem(page, catalogItem);
+  await backstagePage.clickSidebarItem(catalogItem);
   await takeScreenshot(page, testInfo, 'catalog');
 
-  await page.getByRole('link', { name: 'example-website', exact: true }).click();
+  await page
+    .getByRole('link', { name: 'example-website', exact: true })
+    .click();
   // Some versions render the favorite button inside the heading.
   await expect(
     page.getByRole('heading', { name: 'example-website' }).first(),
@@ -52,7 +53,10 @@ test('navigates to Catalog and opens the example-website entity', async ({
   }
 });
 
-test('navigates to Register Existing Component', async ({ page }, testInfo) => {
+test('navigates to Register Existing Component', async ({
+  page,
+  backstagePage,
+}, testInfo) => {
   // The catalog import plugin adds this sidebar item since 1.50. Before, the
   // app template had no such sidebar item.
   test.skip(
@@ -60,6 +64,8 @@ test('navigates to Register Existing Component', async ({ page }, testInfo) => {
     'The sidebar has no Register Existing Component item in this version',
   );
 
-  await clickSidebarItem(page, /^\s*register existing (component|entity)\s*$/i);
+  await backstagePage.clickSidebarItem(
+    /^\s*register existing (component|entity)\s*$/i,
+  );
   await takeScreenshot(page, testInfo, 'register-existing-component');
 });

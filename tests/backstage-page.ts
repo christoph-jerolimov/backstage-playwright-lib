@@ -1,4 +1,4 @@
-import type { Locator, Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 /**
  * The layout of a Backstage page: the sidebar and the page content next to
@@ -129,6 +129,26 @@ export class BackstagePage {
     return this.allSidebarItems()
       .filter({ hasText: typeof label === 'string' ? exactly(label) : label })
       .first();
+  }
+
+  /**
+   * Clicks the sidebar item with the given label (see `sidebarItem`) and
+   * waits until its page is shown: the URL is the one of the item, or a sub
+   * page of it (e.g. /settings redirects to /settings/general), and a heading
+   * is visible.
+   */
+  async clickSidebarItem(label: string | RegExp): Promise<void> {
+    const item = this.sidebarItem(label);
+    const href = await item.getAttribute('href');
+    await item.click();
+    await expect(this.page).toHaveURL(
+      url =>
+        url.pathname === href ||
+        url.pathname.startsWith(`${href?.replace(/\/$/, '')}/`),
+    );
+    await expect(
+      this.page.getByRole('heading').filter({ visible: true }).first(),
+    ).toBeVisible();
   }
 
   /**

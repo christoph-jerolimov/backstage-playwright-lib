@@ -1,10 +1,4 @@
-import {
-  clickSidebarItem,
-  expect,
-  loginAsGuest,
-  takeScreenshot,
-  test,
-} from './utils';
+import { expect, loginAsGuest, takeScreenshot, test } from './utils';
 
 test.beforeEach(async ({ page }) => {
   await loginAsGuest(page);
@@ -19,8 +13,9 @@ const languages = [
 
 test('navigates to Settings and shows the language selection', async ({
   page,
+  backstagePage,
 }, testInfo) => {
-  await clickSidebarItem(page, 'Settings');
+  await backstagePage.clickSidebarItem('Settings');
   await takeScreenshot(page, testInfo, 'settings');
 
   const languageSetting = page
