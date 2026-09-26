@@ -346,4 +346,18 @@ export class BackstagePage {
       .locator('[role="alert"], [role="region"] [role="alertdialog"]')
       .filter({ visible: true });
   }
+
+  /**
+   * The error overlays of the development server (`yarn start`), shown over
+   * the page for uncaught errors. They are iframes; use `.contentFrame()` to
+   * read the error, e.g.
+   * `errorOverlay().first().contentFrame().locator('body')`.
+   */
+  errorOverlay(): Locator {
+    return this.page
+      .locator(
+        'iframe#webpack-dev-server-client-overlay, iframe#react-refresh-overlay',
+      )
+      .filter({ visible: true });
+  }
 }
