@@ -360,4 +360,13 @@ export class BackstagePage {
       )
       .filter({ visible: true });
   }
+
+  /**
+   * The breadcrumbs of the page: the "Breadcrumbs" navigation of the plugin
+   * header (since 1.54) or the "breadcrumb" navigation of the MUI
+   * breadcrumbs of Backstage core components.
+   */
+  breadcrumbs(): Locator {
+    return this.page.getByRole('navigation', { name: /^breadcrumbs?$/i });
+  }
 }

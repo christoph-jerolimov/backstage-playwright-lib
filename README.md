@@ -58,6 +58,7 @@ system. Tests get it as the `backstagePage` fixture:
 | `emptyState()`         | The empty state panel, e.g. "Missing Annotation" or "No documents"      |
 | `alerts()`             | The visible alerts and toasts, e.g. "Refresh scheduled"                 |
 | `errorOverlay()`       | The error overlays of the development server for uncaught errors        |
+| `breadcrumbs()`        | The breadcrumbs of the page (plugin header since 1.54)                  |
 
 Labels are matched exactly, but ignoring case, since the old frontend shows
 some labels in capitals via CSS.
