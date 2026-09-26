@@ -83,6 +83,9 @@ function exactly(label: string): RegExp {
   return new RegExp(`^\\s*${escaped}\\s*$`, 'i');
 }
 
+/** The cells of a table row: MUI table cells and Backstage UI grid cells. */
+const tableCells = 'td, th:not([scope="col"]), [role="cell"], [role="gridcell"], [role="rowheader"]';
+
 /**
  * A page object for the areas of a Backstage page that work across the old
  * and the new frontend system.
@@ -280,5 +283,29 @@ export class BackstagePage {
   /** The item with the given label of an open menu, e.g. `Inspect entity`. */
   menuItem(label: string): Locator {
     return this.page.getByRole('menuitem', { name: exactly(label) });
+  }
+
+  /**
+   * The rows of the table in the content, without the header row. An empty
+   * table can have one row with a message, e.g. "No records to display".
+   */
+  tableRows(): Locator {
+    return this.table()
+      .getByRole('row')
+      .filter({ hasNot: this.page.getByRole('columnheader') });
+  }
+
+  /** The row of the table with a cell that shows the given text exactly. */
+  tableRow(text: string): Locator {
+    return this.tableRows().filter({
+      has: this.page.locator(tableCells).filter({ hasText: exactly(text) }),
+    });
+  }
+
+  /** The column header of the table with the given label, e.g. `Name`. */
+  columnHeader(label: string): Locator {
+    return this.table()
+      .getByRole('columnheader')
+      .filter({ hasText: exactly(label) });
   }
 }

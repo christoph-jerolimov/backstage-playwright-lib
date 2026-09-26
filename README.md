@@ -50,6 +50,9 @@ system. Tests get it as the `backstagePage` fixture:
 | `action(label)`        | One button or link in the content or a dialog, e.g. `action('Create')`  |
 | `moreActions()`        | The button that opens the more actions menu of a header                 |
 | `menuItem(label)`      | One item of an open menu, e.g. `menuItem('Inspect entity')`             |
+| `tableRows()`          | The rows of the table, without the header row                           |
+| `tableRow(text)`       | One row with a cell showing the text, e.g. `tableRow('example-website')`|
+| `columnHeader(label)`  | One column header of the table, e.g. `columnHeader('Name')`             |
 
 Labels are matched exactly, but ignoring case, since the old frontend shows
 some labels in capitals via CSS.
