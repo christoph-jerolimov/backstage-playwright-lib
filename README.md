@@ -55,6 +55,7 @@ system. Tests get it as the `backstagePage` fixture:
 | `columnHeader(label)`  | One column header of the table, e.g. `columnHeader('Name')`             |
 | `contentSelect(label)` | One select or autocomplete in the content, e.g. `contentSelect('Kind')`   |
 | `loadingIndicators()`  | The visible loading indicators (progress bars and spinners)             |
+| `emptyState()`         | The empty state panel, e.g. "Missing Annotation" or "No documents"      |
 
 Labels are matched exactly, but ignoring case, since the old frontend shows
 some labels in capitals via CSS.

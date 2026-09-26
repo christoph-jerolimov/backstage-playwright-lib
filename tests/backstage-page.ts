@@ -325,4 +325,14 @@ export class BackstagePage {
   loadingIndicators(): Locator {
     return this.page.getByRole('progressbar').filter({ visible: true });
   }
+
+  /**
+   * The empty state panel in the content, e.g. "Missing Annotation" on the
+   * TechDocs tab of an entity without docs, or "No documents to show".
+   */
+  emptyState(): Locator {
+    return this.pageContent()
+      .locator('[class*="BackstageEmptyState-root"]')
+      .filter({ visible: true });
+  }
 }
