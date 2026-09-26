@@ -103,7 +103,7 @@ currently 1.39.0, whose backend fails to start.
 
 The tests take a screenshot at the end of each step:
 
-- `login-page.spec.ts` opens the login page, logs in as guest by clicking the
+- `login.spec.ts` opens the login page, logs in as guest by clicking the
   *Enter* button and waits for the catalog page.
 - `home.spec.ts` navigates to *Home*. Skipped for Backstage 1.49 to 1.53,
   which have no Home item.
