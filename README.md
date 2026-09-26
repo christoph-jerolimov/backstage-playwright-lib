@@ -47,6 +47,7 @@ system. Tests get it as the `backstagePage` fixture:
 | `table()`              | The table in the content; fails if there is more than one (strict mode) |
 | `allDialogs()`         | All open dialogs, in the order they were opened                         |
 | `dialog()`             | The latest opened dialog, shown on top of the others                    |
+| `action(label)`        | One button or link in the content or a dialog, e.g. `action('Create')`  |
 
 Labels are matched exactly, but ignoring case, since the old frontend shows
 some labels in capitals via CSS.

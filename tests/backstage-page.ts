@@ -249,4 +249,20 @@ export class BackstagePage {
   tabContent(): Locator {
     return this.page.locator(tabContent).first();
   }
+
+  /**
+   * The action with the given label in the content or in a dialog: a button
+   * or a link. Some actions are buttons in one version and links in another,
+   * e.g. Create on the catalog page (a link in the new frontend system).
+   */
+  action(label: string): Locator {
+    const name = exactly(label);
+    const inContent = this.pageContent();
+    const inDialogs = this.allDialogs();
+    return inContent
+      .getByRole('button', { name })
+      .or(inContent.getByRole('link', { name }))
+      .or(inDialogs.getByRole('button', { name }))
+      .or(inDialogs.getByRole('link', { name }));
+  }
 }
