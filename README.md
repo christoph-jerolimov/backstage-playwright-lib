@@ -56,6 +56,7 @@ system. Tests get it as the `backstagePage` fixture:
 | `contentSelect(label)` | One select or autocomplete in the content, e.g. `contentSelect('Kind')`   |
 | `loadingIndicators()`  | The visible loading indicators (progress bars and spinners)             |
 | `emptyState()`         | The empty state panel, e.g. "Missing Annotation" or "No documents"      |
+| `alerts()`             | The visible alerts and toasts, e.g. "Refresh scheduled"                 |
 
 Labels are matched exactly, but ignoring case, since the old frontend shows
 some labels in capitals via CSS.

@@ -335,4 +335,15 @@ export class BackstagePage {
       .locator('[class*="BackstageEmptyState-root"]')
       .filter({ visible: true });
   }
+
+  /**
+   * The visible alerts, e.g. "Refresh scheduled" after refreshing an entity:
+   * MUI alerts in the old and toasts in the notification region in the new
+   * frontend system. Toasts are not part of `allDialogs()`.
+   */
+  alerts(): Locator {
+    return this.page
+      .locator('[role="alert"], [role="region"] [role="alertdialog"]')
+      .filter({ visible: true });
+  }
 }
