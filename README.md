@@ -26,21 +26,36 @@ to target a different Backstage instance.
 areas of a Backstage page that work across the old and the new frontend
 system. Tests get it as the `backstagePage` fixture:
 
-| Function         | Area                                                                  |
-| ---------------- | --------------------------------------------------------------------- |
-| `sidebar()`      | The sidebar                                                           |
-| `pluginHeader()` | The topmost header: plugin header, or page header (old frontend)      |
-| `allHeaders()`   | All headers, e.g. plugin header and entity header                     |
-| `pageContent()`  | Everything next to the sidebar, including the plugin header           |
-| `pageTabs()`     | The tabs of the page's tab bar, e.g. of an entity or settings page    |
-| `allTabs()`      | All tabs of the page, including tabs within the content              |
-| `tabContent()`   | The content below the headers and tabs, e.g. of the selected tab      |
-| `allDialogs()`   | All open dialogs, in the order they were opened                       |
-| `dialog()`       | The latest opened dialog, shown on top of the others                  |
+| Function               | Area                                                                    |
+| ---------------------- | ----------------------------------------------------------------------- |
+| `sidebar()`            | The sidebar                                                             |
+| `allSidebarItems()`    | All sidebar items with a label, e.g. Home, Catalog and Search           |
+| `sidebarItem(label)`   | One sidebar item, e.g. `sidebarItem('Catalog')`                         |
+| `pluginHeader()`       | The topmost header: plugin header, or page header (old frontend)        |
+| `allHeaders()`         | All headers, e.g. plugin header and entity header                       |
+| `pageContent()`        | Everything next to the sidebar, including the plugin header             |
+| `pageTabs()`           | The tabs of the page's tab bar, e.g. of an entity or settings page      |
+| `pageTab(label)`       | One tab of the page's tab bar, e.g. `pageTab('Overview')`               |
+| `allTabs()`            | All tabs of the page, including tabs within the content                 |
+| `tab(label)`           | One tab of the page, including tabs within the content                  |
+| `tabContent()`         | The content below the headers and tabs, e.g. of the selected tab        |
+| `contentFilter()`      | The filter or search input of the content, e.g. of the catalog table    |
+| `button(label)`        | One button anywhere on the page, e.g. `button('Refresh')`               |
+| `allCards()`           | All cards in the content, without nested cards                          |
+| `card(title)`          | One card by its title, e.g. `card('About')`                             |
+| `allTables()`          | All tables in the content                                               |
+| `table()`              | The table in the content; fails if there is more than one (strict mode) |
+| `allDialogs()`         | All open dialogs, in the order they were opened                         |
+| `dialog()`             | The latest opened dialog, shown on top of the others                    |
+
+Labels are matched exactly, but ignoring case, since the old frontend shows
+some labels in capitals via CSS.
 
 ```ts
-test('shows the tabs', async ({ page, backstagePage }) => {
-  await expect(backstagePage.pageTabs().first()).toBeVisible();
+test('filters the catalog', async ({ backstagePage }) => {
+  await backstagePage.sidebarItem('Catalog').click();
+  await backstagePage.contentFilter().fill('example');
+  await expect(backstagePage.table().getByRole('row')).toHaveCount(2);
 });
 ```
 

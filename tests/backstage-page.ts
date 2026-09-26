@@ -57,6 +57,33 @@ const dialogs = [
 ].join(', ');
 
 /**
+ * Cards: MUI cards (also used by the InfoCard of Backstage core components)
+ * and Backstage UI cards. Cards nested in other cards, e.g. filter groups,
+ * are part of their outer card.
+ */
+const anyCard = ':is([class*="MuiCard-root"], .bui-Card)';
+const cards = `${anyCard}:not(${anyCard} *)`;
+
+/**
+ * The title of a card: the title of an MUI card header (no heading element,
+ * also used by InfoCard) or a heading.
+ */
+const cardTitle = '[class*="MuiCardHeader-title"], h1, h2, h3, h4, h5, h6';
+
+/**
+ * Tables: MUI tables and Backstage UI tables (role grid). Only tables with
+ * column headers, e.g. without the extra table MUI renders for pagination.
+ */
+const anyTable = ':is(table, [role="table"], [role="grid"])';
+const tables = `${anyTable}:has(th, [role="columnheader"]):not(${anyTable} *)`;
+
+/** Matches a label exactly, ignoring case (some labels are uppercased by CSS). */
+function exactly(label: string): RegExp {
+  const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`^\\s*${escaped}\\s*$`, 'i');
+}
+
+/**
  * A page object for the areas of a Backstage page that work across the old
  * and the new frontend system.
  */
@@ -71,6 +98,28 @@ export class BackstagePage {
     return this.page
       .getByRole('navigation', { name: 'sidebar nav' })
       .locator(':scope > div > div');
+  }
+
+  /**
+   * All items of the sidebar with a label, e.g. Home, Catalog and Search.
+   * The Backstage logo is a link without a label and not included.
+   */
+  allSidebarItems(): Locator {
+    const sidebar = this.sidebar();
+    return sidebar
+      .getByRole('link')
+      .or(sidebar.getByRole('button'))
+      .filter({ hasText: /\S/ });
+  }
+
+  /**
+   * The sidebar item with the given label, e.g. `Catalog`. The first one if
+   * the label is shown twice (Notifications in Backstage 1.50 to 1.52).
+   */
+  sidebarItem(label: string): Locator {
+    return this.allSidebarItems()
+      .filter({ hasText: exactly(label) })
+      .first();
   }
 
   /**
@@ -113,6 +162,11 @@ export class BackstagePage {
     return tabBar.getByRole('tab').or(tabBar.getByRole('link'));
   }
 
+  /** The tab of the tab bar of the page with the given label, e.g. `Overview`. */
+  pageTab(label: string): Locator {
+    return this.pageTabs().filter({ hasText: exactly(label) });
+  }
+
   /** All tabs of the page, including tabs within the content. */
   allTabs(): Locator {
     return this.page
@@ -122,6 +176,59 @@ export class BackstagePage {
           .getByRole('navigation', { name: 'Content navigation' })
           .getByRole('link'),
       );
+  }
+
+  /** The tab of the page with the given label, including tabs within the content. */
+  tab(label: string): Locator {
+    return this.allTabs().filter({ hasText: exactly(label) });
+  }
+
+  /**
+   * The filter or search input of the content, e.g. of the catalog table.
+   * Found by its placeholder or label starting with "Filter" or "Search".
+   */
+  contentFilter(): Locator {
+    const content = this.pageContent();
+    const name = /^(filter|search)/i;
+    return content
+      .getByRole('searchbox')
+      .or(content.getByRole('textbox', { name }))
+      .or(content.getByPlaceholder(name));
+  }
+
+  /**
+   * The button with the given label anywhere on the page, including the
+   * sidebar and dialogs. Only elements with the button role: some actions
+   * are links, e.g. Create on the catalog page of the new frontend system.
+   */
+  button(label: string): Locator {
+    return this.page.getByRole('button', { name: exactly(label) });
+  }
+
+  /** All cards in the content, without cards nested in other cards. */
+  allCards(): Locator {
+    return this.pageContent().locator(cards);
+  }
+
+  /** The card with the given title, e.g. `About` on an entity page. */
+  card(title: string): Locator {
+    return this.allCards().filter({
+      has: this.page.locator(cardTitle).filter({ hasText: exactly(title) }),
+    });
+  }
+
+  /** All tables in the content. */
+  allTables(): Locator {
+    return this.pageContent().locator(tables);
+  }
+
+  /**
+   * The table in the content. Like any Playwright locator, actions and
+   * assertions fail if the content has more than one table (strict mode);
+   * use `allTables()` then.
+   */
+  table(): Locator {
+    return this.allTables();
   }
 
   /** All open dialogs, in the order they were opened. */
