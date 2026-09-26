@@ -47,6 +47,16 @@ const tabContent = [
 ].join(', ');
 
 /**
+ * Dialogs: MUI dialogs (the dialog paper) and Backstage UI dialogs. Menus and
+ * other popovers of Backstage UI also have the dialog role, and toasts in
+ * the notification region the alertdialog role, so they are excluded.
+ */
+const dialogs = [
+  '[role="dialog"]:not([class*="Popover"])',
+  '[role="alertdialog"]:not([role="region"] *)',
+].join(', ');
+
+/**
  * A page object for the areas of a Backstage page that work across the old
  * and the new frontend system.
  */
@@ -112,6 +122,20 @@ export class BackstagePage {
           .getByRole('navigation', { name: 'Content navigation' })
           .getByRole('link'),
       );
+  }
+
+  /** All open dialogs, in the order they were opened. */
+  allDialogs(): Locator {
+    // Closed MUI dialogs can stay in the DOM without a size.
+    return this.page.locator(dialogs).filter({ visible: true });
+  }
+
+  /**
+   * The latest opened dialog, which is shown on top of the others. Dialogs
+   * are rendered at the end of the document when they are opened.
+   */
+  dialog(): Locator {
+    return this.allDialogs().last();
   }
 
   /** The content below the headers and tabs, e.g. of the selected tab. */

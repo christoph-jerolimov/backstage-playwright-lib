@@ -35,6 +35,8 @@ system. Tests get it as the `backstagePage` fixture:
 | `pageTabs()`     | The tabs of the page's tab bar, e.g. of an entity or settings page    |
 | `allTabs()`      | All tabs of the page, including tabs within the content              |
 | `tabContent()`   | The content below the headers and tabs, e.g. of the selected tab      |
+| `allDialogs()`   | All open dialogs, in the order they were opened                       |
+| `dialog()`       | The latest opened dialog, shown on top of the others                  |
 
 ```ts
 test('shows the tabs', async ({ page, backstagePage }) => {
