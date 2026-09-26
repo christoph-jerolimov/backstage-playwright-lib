@@ -379,4 +379,21 @@ export class BackstagePage {
   pageTitle(): Locator {
     return this.allHeaders().getByRole('heading', { level: 1 });
   }
+
+  /**
+   * The items of the breadcrumbs, e.g. `Settings` and `General`: links to
+   * the parent pages and the current page (no link). Separators are hidden
+   * from the accessibility tree and not included.
+   */
+  breadcrumbItems(): Locator {
+    return this.breadcrumbs().getByRole('listitem');
+  }
+
+  /**
+   * The breadcrumb item with the given label, e.g. `Catalog`. Click it to go
+   * to a parent page, or use `.getByRole('link')` for its link.
+   */
+  breadcrumbItem(label: string): Locator {
+    return this.breadcrumbItems().filter({ hasText: exactly(label) });
+  }
 }
