@@ -120,12 +120,14 @@ export class BackstagePage {
   }
 
   /**
-   * The sidebar item with the given label, e.g. `Catalog`. The first one if
-   * the label is shown twice (Notifications in Backstage 1.50 to 1.52).
+   * The sidebar item with the given label, e.g. `Catalog`, or with a label
+   * matching a regular expression for labels that differ between versions,
+   * e.g. `/^create(\.\.\.)?$/i`. The first one if the label is shown twice
+   * (Notifications in Backstage 1.50 to 1.52).
    */
-  sidebarItem(label: string): Locator {
+  sidebarItem(label: string | RegExp): Locator {
     return this.allSidebarItems()
-      .filter({ hasText: exactly(label) })
+      .filter({ hasText: typeof label === 'string' ? exactly(label) : label })
       .first();
   }
 

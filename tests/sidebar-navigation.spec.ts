@@ -75,9 +75,28 @@ test('navigates to Catalog and opens the example-website entity', async ({
   }
 });
 
-const items = [
+const items: {
+  name: string;
+  label?: RegExp;
+  screenshot: string;
+  skip?: boolean;
+}[] = [
   { name: 'APIs', screenshot: 'apis' },
   { name: 'Docs', screenshot: 'docs' },
+  {
+    name: 'Create',
+    // "Create..." in older versions.
+    label: /^\s*create(\.\.\.)?\s*$/i,
+    screenshot: 'create',
+  },
+  {
+    name: 'Register Existing Component',
+    label: /^\s*register existing (component|entity)\s*$/i,
+    screenshot: 'register-existing-component',
+    // The catalog import plugin adds this sidebar item since 1.50. Before,
+    // the app template had no such sidebar item.
+    skip: isVersionBetween('1.0', '1.49'),
+  },
   {
     name: 'Notifications',
     screenshot: 'notifications',
@@ -86,11 +105,11 @@ const items = [
   },
 ];
 
-for (const { name, screenshot, skip } of items) {
+for (const { name, label, screenshot, skip } of items) {
   test(`navigates to ${name}`, async ({ page }, testInfo) => {
     test.skip(!!skip, `The sidebar has no ${name} item in this version`);
 
-    await clickSidebarItem(page, name);
+    await clickSidebarItem(page, label ?? name);
     await takeScreenshot(page, testInfo, screenshot);
   });
 }

@@ -150,7 +150,7 @@ export async function loginAsGuest(page: Page) {
 }
 
 /** Clicks the sidebar item with the given label and waits for its page. */
-export async function clickSidebarItem(page: Page, name: string) {
+export async function clickSidebarItem(page: Page, name: string | RegExp) {
   const link = new BackstagePage(page).sidebarItem(name);
   const href = await link.getAttribute('href');
   await link.click();

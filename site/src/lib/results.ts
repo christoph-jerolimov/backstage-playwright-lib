@@ -40,6 +40,8 @@ const knownScreens: Record<string, string> = {
   catalog: 'Catalog',
   apis: 'APIs',
   docs: 'Docs',
+  create: 'Create',
+  'register-existing-component': 'Register existing component',
   notifications: 'Notifications',
   settings: 'Settings',
   'settings-language': 'Settings: language selection',
