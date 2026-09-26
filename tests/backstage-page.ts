@@ -77,10 +77,14 @@ const cardTitle = '[class*="MuiCardHeader-title"], h1, h2, h3, h4, h5, h6';
 const anyTable = ':is(table, [role="table"], [role="grid"])';
 const tables = `${anyTable}:has(th, [role="columnheader"]):not(${anyTable} *)`;
 
-/** Matches a label exactly, ignoring case (some labels are uppercased by CSS). */
+/**
+ * Matches a label exactly, ignoring case (some labels are uppercased by CSS)
+ * and surrounding whitespace, including zero-width spaces (e.g. the labels
+ * of the catalog filters end with one).
+ */
 function exactly(label: string): RegExp {
   const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(`^\\s*${escaped}\\s*$`, 'i');
+  return new RegExp(`^[\\s\\u200b]*${escaped}[\\s\\u200b]*$`, 'i');
 }
 
 /** The cells of a table row: MUI table cells and Backstage UI grid cells. */
@@ -307,5 +311,13 @@ export class BackstagePage {
     return this.table()
       .getByRole('columnheader')
       .filter({ hasText: exactly(label) });
+  }
+
+  /**
+   * The select or autocomplete input with the given label in the content,
+   * e.g. the `Kind`, `Type` or `Owner` filter of the catalog.
+   */
+  contentSelect(label: string): Locator {
+    return this.pageContent().getByLabel(exactly(label));
   }
 }

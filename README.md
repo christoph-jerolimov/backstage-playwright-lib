@@ -53,6 +53,7 @@ system. Tests get it as the `backstagePage` fixture:
 | `tableRows()`          | The rows of the table, without the header row                           |
 | `tableRow(text)`       | One row with a cell showing the text, e.g. `tableRow('example-website')`|
 | `columnHeader(label)`  | One column header of the table, e.g. `columnHeader('Name')`             |
+| `contentSelect(label)` | One select or autocomplete in the content, e.g. `contentSelect('Kind')`   |
 
 Labels are matched exactly, but ignoring case, since the old frontend shows
 some labels in capitals via CSS.
