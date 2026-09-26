@@ -58,9 +58,7 @@ async function waitForNetworkQuiet(page: Page, quietMs = 500, timeout = 15_000) 
 export async function waitForPageToSettle(page: Page) {
   await page.waitForLoadState('networkidle');
   await waitForNetworkQuiet(page);
-  await expect(
-    page.getByRole('progressbar').filter({ visible: true }),
-  ).toHaveCount(0);
+  await expect(new BackstagePage(page).loadingIndicators()).toHaveCount(0);
   // Wait for time-based animations that end, e.g. fade-ins. Spinners run
   // forever and scroll-driven animations (e.g. of Backstage UI cards) only
   // progress when scrolling. Give up after a few seconds in any case.

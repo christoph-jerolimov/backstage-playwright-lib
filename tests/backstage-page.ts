@@ -320,4 +320,9 @@ export class BackstagePage {
   contentSelect(label: string): Locator {
     return this.pageContent().getByLabel(exactly(label));
   }
+
+  /** The visible loading indicators (progress bars and spinners). */
+  loadingIndicators(): Locator {
+    return this.page.getByRole('progressbar').filter({ visible: true });
+  }
 }
