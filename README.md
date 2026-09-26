@@ -112,9 +112,10 @@ The tests take a screenshot at the end of each step:
   the catalog item is called Home, so the test clicks Home there. It also
   navigates to *Register Existing Component*, which is skipped up to Backstage
   1.49; the catalog import plugin adds this sidebar item since 1.50.
-- `apis.spec.ts` and `docs.spec.ts` navigate to *APIs* and *Docs*.
+- `apis.spec.ts` navigates to *APIs* and opens the `example-grpc-api` entity.
+- `docs.spec.ts` navigates to *Docs*.
 - `scaffolder.spec.ts` navigates to *Create* (called *Create...* in older
-  versions).
+  versions), selects the *Example Node.js Template* card and clicks *Choose*.
 - `notifications.spec.ts` navigates to *Notifications*. Skipped up to Backstage
   1.41, whose app template doesn't include the notifications plugin.
 - `settings.spec.ts` navigates to *Settings* and checks that the language
