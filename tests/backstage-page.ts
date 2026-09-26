@@ -369,4 +369,14 @@ export class BackstagePage {
   breadcrumbs(): Locator {
     return this.page.getByRole('navigation', { name: /^breadcrumbs?$/i });
   }
+
+  /**
+   * The title of the page: the level 1 heading of the headers, e.g. the
+   * plugin title or, in the old frontend system, the entity name. Since 1.54
+   * it is visually hidden in the plugin header, so check it with
+   * `toHaveText()` instead of `toBeVisible()`.
+   */
+  pageTitle(): Locator {
+    return this.allHeaders().getByRole('heading', { level: 1 });
+  }
 }
