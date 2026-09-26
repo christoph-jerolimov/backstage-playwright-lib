@@ -44,6 +44,8 @@ translations (English and German) using the config files in
 The tests run in parallel against the `main` branch and the latest patch
 release of the 20 most recent Backstage releases (e.g. `1.55.0`, `1.54.0`, …).
 The list of versions is resolved from the repository tags on each run.
+Versions that can't be tested are listed in `SKIP_VERSIONS` in the workflow,
+currently 1.39.0, whose backend fails to start.
 
 The tests take a screenshot at the end of each step:
 

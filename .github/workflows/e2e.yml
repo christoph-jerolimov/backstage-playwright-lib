@@ -9,6 +9,11 @@ on:
 
 env:
   BACKSTAGE_REPOSITORY: christoph-jerolimov/backstage-history
+  # Versions of backstage-history that can't be tested, separated by spaces:
+  # - 1.39.0: the backend fails to start, since the lockfile resolves
+  #   @backstage/plugin-catalog-backend 2.1.0 (Backstage 1.40), which needs a
+  #   service that @backstage/backend-defaults 0.10.0 doesn't provide.
+  SKIP_VERSIONS: 1.39.0
 
 jobs:
   versions:
@@ -28,7 +33,8 @@ jobs:
             | sort -V -r \
             | awk -F. '!seen[$1"."$2]++' \
             | head -n 20 \
-            | jq -R -s -c 'split("\n") | map(select(length > 0)) | ["main"] + .')
+            | jq -R -s -c --arg skip "$SKIP_VERSIONS" \
+                'split("\n") | map(select(length > 0)) - ($skip | split(" ")) | ["main"] + .')
           echo "Testing against: $refs"
           echo "refs=$refs" >> "$GITHUB_OUTPUT"
 
