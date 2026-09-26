@@ -105,20 +105,20 @@ The tests take a screenshot at the end of each step:
 
 - `login-page.spec.ts` opens the login page, logs in as guest by clicking the
   *Enter* button and waits for the catalog page.
-- `sidebar-navigation.spec.ts` logs in as guest and navigates via the sidebar to
-  *Home*, *Catalog*, *APIs*, *Docs*, *Create*, *Register Existing Component*,
-  *Notifications* and *Settings*. On
-  *Catalog* it opens the `example-website` entity and takes a screenshot of
-  each tab of the entity page. On *Settings* it checks that the language
+- `home.spec.ts` navigates to *Home*. Skipped for Backstage 1.49 to 1.53,
+  which have no Home item.
+- `catalog.spec.ts` navigates to *Catalog*, opens the `example-website` entity
+  and takes a screenshot of each tab of the entity page. Up to Backstage 1.48
+  the catalog item is called Home, so the test clicks Home there. It also
+  navigates to *Register Existing Component*, which is skipped up to Backstage
+  1.49; the catalog import plugin adds this sidebar item since 1.50.
+- `apis.spec.ts` and `docs.spec.ts` navigate to *APIs* and *Docs*.
+- `scaffolder.spec.ts` navigates to *Create* (called *Create...* in older
+  versions).
+- `notifications.spec.ts` navigates to *Notifications*. Skipped up to Backstage
+  1.41, whose app template doesn't include the notifications plugin.
+- `settings.spec.ts` navigates to *Settings* and checks that the language
   selection offers all configured languages.
-  *Home* is
-  skipped for Backstage 1.49 to 1.53, which have no Home item. Up to
-  Backstage 1.48 the catalog item is called Home, so the *Catalog* test
-  clicks Home there. *Notifications* is skipped up to Backstage 1.41, whose app
-  template doesn't include the notifications plugin. *Register Existing
-  Component* is skipped up to Backstage 1.49; the catalog import plugin adds
-  this sidebar item since 1.50. *Create* is called *Create...* in older
-  versions.
 
 Each version uploads its screenshots as a `screenshots-<version>` artifact, and
 all screenshots are also collected into a single `screenshots` artifact.
