@@ -265,4 +265,20 @@ export class BackstagePage {
       .or(inDialogs.getByRole('button', { name }))
       .or(inDialogs.getByRole('link', { name }));
   }
+
+  /**
+   * The button that opens the menu with more actions in a header, e.g. of an
+   * entity page. Labelled "more" in the old and "More actions" in the new
+   * frontend system.
+   */
+  moreActions(): Locator {
+    return this.allHeaders().getByRole('button', {
+      name: /^\s*more( actions)?\s*$/i,
+    });
+  }
+
+  /** The item with the given label of an open menu, e.g. `Inspect entity`. */
+  menuItem(label: string): Locator {
+    return this.page.getByRole('menuitem', { name: exactly(label) });
+  }
 }

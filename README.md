@@ -48,6 +48,8 @@ system. Tests get it as the `backstagePage` fixture:
 | `allDialogs()`         | All open dialogs, in the order they were opened                         |
 | `dialog()`             | The latest opened dialog, shown on top of the others                    |
 | `action(label)`        | One button or link in the content or a dialog, e.g. `action('Create')`  |
+| `moreActions()`        | The button that opens the more actions menu of a header                 |
+| `menuItem(label)`      | One item of an open menu, e.g. `menuItem('Inspect entity')`             |
 
 Labels are matched exactly, but ignoring case, since the old frontend shows
 some labels in capitals via CSS.
