@@ -35,9 +35,16 @@ test('navigates to Notifications and shows a sent notification', async ({
   await backstagePage.takeScreenshot('notifications');
 
   // The sidebar item shows the number of unread notifications after its
-  // label, e.g. "Notifications 1".
-  const sidebarItem = backstagePage.sidebarItem(/^\s*notifications/i);
-  await expect(sidebarItem).toHaveText(/^\s*notifications\s*$/i);
+  // label, e.g. "Notifications 1". Backstage 1.50 to 1.52 show two
+  // Notifications items; only the second one shows the number.
+  const sidebarItemWithCount = (count: number) =>
+    backstagePage
+      .allSidebarItems()
+      .filter({
+        hasText: new RegExp(`^\\s*notifications\\s*${count}\\s*$`, 'i'),
+      });
+  await expect(backstagePage.sidebarItem('Notifications')).toBeVisible();
+  await expect(sidebarItemWithCount(1)).toHaveCount(0);
 
   // Send a notification to all users via the notifications backend.
   const title = 'Hello from the Playwright tests';
@@ -63,7 +70,7 @@ test('navigates to Notifications and shows a sent notification', async ({
     // Reload the page, since not all versions push new notifications.
     await page.reload();
     await expect(page.getByText(title).first()).toBeVisible();
-    await expect(sidebarItem).toHaveText(/^\s*notifications\s*1\s*$/i);
+    await expect(sidebarItemWithCount(1)).toBeVisible();
     await backstagePage.takeScreenshot('notifications-sent');
   } finally {
     // Mark the notification as read, so that the unread count of the
