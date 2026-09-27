@@ -1,12 +1,12 @@
-import { isVersionBetween, loginAsGuest, takeScreenshot, test } from './utils';
+import { test } from './utils';
 
-test.beforeEach(async ({ page }) => {
-  await loginAsGuest(page);
+test.beforeEach(async ({ backstagePage }) => {
+  await backstagePage.loginAsGuest();
 });
 
-test('navigates to Home', async ({ page, backstagePage }, testInfo) => {
+test('navigates to Home', async ({ page, backstagePage }) => {
   test.skip(
-    isVersionBetween('1.49', '1.53'),
+    backstagePage.isVersionBetween('1.49', '1.53'),
     'The sidebar has no Home item in Backstage 1.49 to 1.53',
   );
 
@@ -24,5 +24,5 @@ test('navigates to Home', async ({ page, backstagePage }, testInfo) => {
   );
 
   await backstagePage.clickSidebarItem('Home');
-  await takeScreenshot(page, testInfo, 'home');
+  await backstagePage.takeScreenshot('home');
 });

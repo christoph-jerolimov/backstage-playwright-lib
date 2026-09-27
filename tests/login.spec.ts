@@ -1,14 +1,14 @@
-import { expect, takeScreenshot, test } from './utils';
+import { expect, test } from './utils';
 
 test('opens the login page and logs in as guest', async ({
   page,
   backstagePage,
-}, testInfo) => {
+}) => {
   const response = await page.goto('/');
 
   expect(response?.ok()).toBeTruthy();
   await expect(page).toHaveTitle(/.+/);
-  await takeScreenshot(page, testInfo, 'login-page');
+  await backstagePage.takeScreenshot('login-page');
 
   const enterButton = page.getByRole('button', { name: 'Enter' });
   await expect(enterButton).toBeVisible();
@@ -20,5 +20,5 @@ test('opens the login page and logs in as guest', async ({
   await expect(
     page.getByRole('heading', { name: 'My Company Catalog' }),
   ).toBeVisible();
-  await takeScreenshot(page, testInfo, 'after-login');
+  await backstagePage.takeScreenshot('after-login');
 });

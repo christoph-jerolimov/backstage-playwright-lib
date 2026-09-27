@@ -1,10 +1,10 @@
-import { loginAsGuest, takeScreenshot, test } from './utils';
+import { test } from './utils';
 
-test.beforeEach(async ({ page }) => {
-  await loginAsGuest(page);
+test.beforeEach(async ({ backstagePage }) => {
+  await backstagePage.loginAsGuest();
 });
 
-test('navigates to Docs', async ({ page, backstagePage }, testInfo) => {
+test('navigates to Docs', async ({ backstagePage }) => {
   await backstagePage.clickSidebarItem('Docs');
-  await takeScreenshot(page, testInfo, 'docs');
+  await backstagePage.takeScreenshot('docs');
 });

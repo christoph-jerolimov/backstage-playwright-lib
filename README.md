@@ -22,7 +22,7 @@ to target a different Backstage instance.
 
 ## Page object
 
-[`tests/backstage-page.ts`](tests/backstage-page.ts) provides locators (and a few actions) for the
+[`tests/backstage-page.ts`](tests/backstage-page.ts) provides locators and actions for the
 areas of a Backstage page that work across the old and the new frontend
 system. Tests get it as the `backstagePage` fixture:
 
@@ -31,7 +31,6 @@ system. Tests get it as the `backstagePage` fixture:
 | `sidebar()`            | The sidebar                                                             |
 | `allSidebarItems()`    | All sidebar items with a label, e.g. Home, Catalog and Search           |
 | `sidebarItem(label)`   | One sidebar item, e.g. `sidebarItem('Catalog')`                         |
-| `clickSidebarItem(label)` | Clicks a sidebar item and waits until its page is shown              |
 | `pluginHeader()`       | The topmost header: plugin header, or page header (old frontend)        |
 | `allHeaders()`         | All headers, e.g. plugin header and entity header                       |
 | `pageContent()`        | Everything next to the sidebar, including the plugin header             |
@@ -63,6 +62,14 @@ system. Tests get it as the `backstagePage` fixture:
 | `pageTitle()`          | The level 1 heading of the headers (visually hidden since 1.54)         |
 | `breadcrumbItems()`    | The items of the breadcrumbs, e.g. Settings and General                 |
 | `breadcrumbItem(label)`| One breadcrumb item, e.g. `breadcrumbItem('Settings')`                   |
+
+| Action                     | What it does                                                        |
+| -------------------------- | ------------------------------------------------------------------- |
+| `loginAsGuest()`           | Opens the app and logs in as guest                                  |
+| `clickSidebarItem(label)`  | Clicks a sidebar item and waits until its page is shown             |
+| `waitForPageToSettle()`    | Waits for requests, loading indicators and animations to finish     |
+| `takeScreenshot(name)`     | Saves `screenshots/<name>-<version>.png` and attaches it to the report |
+| `isVersionBetween(from, to)` | Whether the tested version is in the range, e.g. `('1.49', '1.53')` |
 
 Labels are matched exactly, but ignoring case, since the old frontend shows
 some labels in capitals via CSS.

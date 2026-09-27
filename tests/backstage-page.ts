@@ -1,4 +1,16 @@
-import { expect, type Locator, type Page } from '@playwright/test';
+import {
+  expect,
+  test,
+  type Locator,
+  type Page,
+  type Request,
+} from '@playwright/test';
+
+/** The Backstage version under test, e.g. `1.55.0` or `main`. */
+export const backstageVersion = process.env.BACKSTAGE_VERSION ?? 'local';
+
+// Used in screenshot file names.
+const fileVersion = backstageVersion.replace(/[^a-zA-Z0-9._-]/g, '-');
 
 /**
  * The layout of a Backstage page: the sidebar and the page content next to
@@ -95,7 +107,129 @@ const tableCells = 'td, th:not([scope="col"]), [role="cell"], [role="gridcell"],
  * and the new frontend system.
  */
 export class BackstagePage {
-  constructor(readonly page: Page) {}
+  /**
+   * The requests in flight. Backstage is a single-page app, so
+   * `waitForLoadState('networkidle')` doesn't wait for requests that are
+   * started after clicking a link.
+   */
+  private readonly inflightRequests = new Set<Request>();
+
+  constructor(readonly page: Page) {
+    page.on('request', request => {
+      // Long-lived connections never finish.
+      if (!['eventsource', 'websocket'].includes(request.resourceType())) {
+        this.inflightRequests.add(request);
+      }
+    });
+    page.on('requestfinished', request =>
+      this.inflightRequests.delete(request),
+    );
+    page.on('requestfailed', request => this.inflightRequests.delete(request));
+  }
+
+  /**
+   * Returns true if the Backstage version under test is a release between
+   * `from` and `to` (both inclusive, compared by major and minor version),
+   * e.g. `isVersionBetween('1.49', '1.53')`. Branches like `main` are never
+   * in range.
+   */
+  isVersionBetween(from: string, to: string): boolean {
+    const parse = (v: string) => {
+      const match = /^(\d+)\.(\d+)/.exec(v);
+      return match ? Number(match[1]) * 1000 + Number(match[2]) : undefined;
+    };
+    const version = parse(backstageVersion);
+    if (version === undefined) {
+      return false;
+    }
+    return parse(from)! <= version && version <= parse(to)!;
+  }
+
+  /** Opens the app and logs in as guest on the sign-in page. */
+  async loginAsGuest(): Promise<void> {
+    await test.step('login as guest', async () => {
+      await this.page.goto('/');
+      const enterButton = this.page.getByRole('button', { name: 'Enter' });
+      await enterButton.click();
+      await expect(enterButton).toBeHidden();
+      await expect(this.sidebar().getByRole('link').first()).toBeVisible();
+    });
+  }
+
+  /** Waits until no request was in flight for `quietMs` (best effort). */
+  private async waitForNetworkQuiet(quietMs = 500, timeout = 15_000) {
+    const deadline = Date.now() + timeout;
+    let quietSince = Date.now();
+    while (Date.now() < deadline) {
+      if (this.inflightRequests.size > 0) {
+        quietSince = Date.now();
+      } else if (Date.now() - quietSince >= quietMs) {
+        return;
+      }
+      await this.page.waitForTimeout(100);
+    }
+  }
+
+  /** Waits until the page has loaded its data and finished rendering. */
+  async waitForPageToSettle(): Promise<void> {
+    await this.page.waitForLoadState('networkidle');
+    await this.waitForNetworkQuiet();
+    await expect(this.loadingIndicators()).toHaveCount(0);
+    // Wait for time-based animations that end, e.g. fade-ins. Spinners run
+    // forever and scroll-driven animations (e.g. of Backstage UI cards) only
+    // progress when scrolling. Give up after a few seconds in any case.
+    await this.page.evaluate(() =>
+      Promise.race([
+        Promise.all(
+          document
+            .getAnimations()
+            .filter(
+              a =>
+                a.timeline === document.timeline &&
+                Number.isFinite(Number(a.effect?.getComputedTiming().endTime)),
+            )
+            .map(a => a.finished.catch(() => undefined)),
+        ),
+        new Promise(resolve => setTimeout(resolve, 5_000)),
+      ]),
+    );
+  }
+
+  /**
+   * Waits until the page has settled and takes a screenshot of the whole
+   * page. Saves it as `screenshots/<name>-<version>.png` and attaches it to
+   * the test report.
+   */
+  async takeScreenshot(name: string): Promise<void> {
+    await this.waitForPageToSettle();
+
+    // Instead of `fullPage: true`, grow the viewport to the page height:
+    // full-page screenshots render the layout of the new frontend system
+    // shifted to the left when the page is taller than the viewport.
+    const viewport = this.page.viewportSize();
+    const pageHeight = await this.page.evaluate(
+      () => document.documentElement.scrollHeight,
+    );
+    const grow = viewport && pageHeight > viewport.height;
+    if (grow) {
+      await this.page.setViewportSize({
+        width: viewport.width,
+        height: Math.min(pageHeight, 5_000),
+      });
+      await this.waitForPageToSettle();
+    }
+
+    const screenshot = await this.page.screenshot({
+      path: `screenshots/${name}-${fileVersion}.png`,
+    });
+    await test
+      .info()
+      .attach(name, { body: screenshot, contentType: 'image/png' });
+
+    if (grow) {
+      await this.page.setViewportSize(viewport);
+    }
+  }
 
   /**
    * The sidebar. The `nav` element itself has no size, the visible sidebar

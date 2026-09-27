@@ -1,15 +1,15 @@
-import { expect, loginAsGuest, takeScreenshot, test } from './utils';
+import { expect, test } from './utils';
 
-test.beforeEach(async ({ page }) => {
-  await loginAsGuest(page);
+test.beforeEach(async ({ backstagePage }) => {
+  await backstagePage.loginAsGuest();
 });
 
 test('navigates to APIs and opens the example-grpc-api entity', async ({
   page,
   backstagePage,
-}, testInfo) => {
+}) => {
   await backstagePage.clickSidebarItem('APIs');
-  await takeScreenshot(page, testInfo, 'apis');
+  await backstagePage.takeScreenshot('apis');
 
   await page
     .getByRole('link', { name: 'example-grpc-api', exact: true })
@@ -18,5 +18,5 @@ test('navigates to APIs and opens the example-grpc-api entity', async ({
   await expect(
     page.getByRole('heading', { name: 'example-grpc-api' }).first(),
   ).toBeVisible();
-  await takeScreenshot(page, testInfo, 'apis-entity');
+  await backstagePage.takeScreenshot('apis-entity');
 });

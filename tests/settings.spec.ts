@@ -1,7 +1,7 @@
-import { expect, loginAsGuest, takeScreenshot, test } from './utils';
+import { expect, test } from './utils';
 
-test.beforeEach(async ({ page }) => {
-  await loginAsGuest(page);
+test.beforeEach(async ({ backstagePage }) => {
+  await backstagePage.loginAsGuest();
 });
 
 // The languages enabled in app-config/app-config.nfs.yaml, with the names the
@@ -14,9 +14,9 @@ const languages = [
 test('navigates to Settings and shows the language selection', async ({
   page,
   backstagePage,
-}, testInfo) => {
+}) => {
   await backstagePage.clickSidebarItem('Settings');
-  await takeScreenshot(page, testInfo, 'settings');
+  await backstagePage.takeScreenshot('settings');
 
   const languageSetting = page
     .getByRole('listitem')
@@ -28,5 +28,5 @@ test('navigates to Settings and shows the language selection', async ({
   await expect(page.getByRole('option')).toHaveText(
     languages.map(language => language.name),
   );
-  await takeScreenshot(page, testInfo, 'settings-language');
+  await backstagePage.takeScreenshot('settings-language');
 });
