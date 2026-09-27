@@ -34,6 +34,11 @@ test('navigates to Notifications and shows a sent notification', async ({
     .authorization;
   await backstagePage.takeScreenshot('notifications');
 
+  // The sidebar item shows the number of unread notifications after its
+  // label, e.g. "Notifications 1".
+  const sidebarItem = backstagePage.sidebarItem(/^\s*notifications/i);
+  await expect(sidebarItem).toHaveText(/^\s*notifications\s*$/i);
+
   // Send a notification to all users via the notifications backend.
   const title = 'Hello from the Playwright tests';
   const sendResponse = await request.post(`${backendUrl}/api/notifications`, {
@@ -58,6 +63,7 @@ test('navigates to Notifications and shows a sent notification', async ({
     // Reload the page, since not all versions push new notifications.
     await page.reload();
     await expect(page.getByText(title).first()).toBeVisible();
+    await expect(sidebarItem).toHaveText(/^\s*notifications\s*1\s*$/i);
     await backstagePage.takeScreenshot('notifications-sent');
   } finally {
     // Mark the notification as read, so that the unread count of the

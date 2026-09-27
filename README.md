@@ -132,7 +132,8 @@ each step:
   Extensions* tabs, which is skipped up to Backstage 1.48 (no tabs there).
 - `notifications.spec.ts` navigates to *Notifications*, sends a notification
   to all users via the notifications backend (using a static token configured
-  in both app-config files) and checks that it is shown. Afterwards it marks
+  in both app-config files) and checks that it is shown and that the sidebar
+  item shows 1 unread notification. Afterwards it marks
   the notification as read. Skipped up to Backstage 1.41, whose app template
   doesn't include the notifications plugin.
 - `settings.spec.ts` navigates to *Settings*, checks that the language
