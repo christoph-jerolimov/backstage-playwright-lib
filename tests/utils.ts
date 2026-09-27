@@ -1,4 +1,4 @@
-import { expect, test as base } from '@playwright/test';
+import { test as base } from '@playwright/test';
 import { BackstagePage } from './backstage-page';
 
 /**
@@ -10,5 +10,3 @@ export const test = base.extend<{ backstagePage: BackstagePage }>({
     await use(new BackstagePage(page));
   },
 });
-
-export { expect };
