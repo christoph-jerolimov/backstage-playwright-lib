@@ -8,4 +8,13 @@
 # scripts/setup-backstage.mjs adds the languages from app-config.nfs.yaml as
 # `__experimentalTranslations: { availableLanguages }` to createApp() in
 # packages/app/src/App.tsx.
-{}
+
+# Static token for the tests to call backend APIs, e.g. to send notifications
+# in tests/notifications.spec.ts. Only for the tests, never use it elsewhere.
+backend:
+  auth:
+    externalAccess:
+      - type: static
+        options:
+          token: e2e-tests-static-token
+          subject: e2e-tests

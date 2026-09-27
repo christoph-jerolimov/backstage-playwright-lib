@@ -103,13 +103,15 @@ translations (English and German) using the config files in
   `app-config.local.yaml`. Translations can't be enabled via config there, so
   the script adds `__experimentalTranslations` to `createApp()` in `App.tsx`.
 
-The tests run in parallel against the `main` branch and the latest patch
+The tests run in parallel jobs against the `main` branch and the latest patch
 release of the 20 most recent Backstage releases (e.g. `1.55.0`, `1.54.0`, …).
 The list of versions is resolved from the repository tags on each run.
 Versions that can't be tested are listed in `SKIP_VERSIONS` in the workflow,
 currently 1.39.0, whose backend fails to start.
 
-The tests take a screenshot at the end of each step:
+Within a job, the tests run one at a time, since they all use the same guest
+user (see the notifications test below). They take a screenshot at the end of
+each step:
 
 - `login.spec.ts` opens the login page, logs in as guest by clicking the
   *Enter* button and waits for the catalog page.
@@ -120,14 +122,22 @@ The tests take a screenshot at the end of each step:
   the catalog item is called Home, so the test clicks Home there. It also
   navigates to *Register Existing Component*, which is skipped up to Backstage
   1.49; the catalog import plugin adds this sidebar item since 1.50.
-- `apis.spec.ts` navigates to *APIs* and opens the `example-grpc-api` entity.
+- `apis.spec.ts` navigates to *APIs*, opens the `example-grpc-api` entity and
+  its *Definition* and *TechDocs* tabs (grouped in a *Documentation* tab since
+  Backstage 1.49; up to 1.48 there is only a *Definition* tab).
 - `docs.spec.ts` navigates to *Docs*.
 - `scaffolder.spec.ts` navigates to *Create* (called *Create...* in older
   versions), selects the *Example Node.js Template* card and clicks *Choose*.
-- `notifications.spec.ts` navigates to *Notifications*. Skipped up to Backstage
-  1.41, whose app template doesn't include the notifications plugin.
-- `settings.spec.ts` navigates to *Settings* and checks that the language
-  selection offers all configured languages.
+  It also opens the *Tasks*, *Actions*, *Template Editor* and *Templating
+  Extensions* tabs, which is skipped up to Backstage 1.48 (no tabs there).
+- `notifications.spec.ts` navigates to *Notifications*, sends a notification
+  to all users via the notifications backend (using a static token configured
+  in both app-config files) and checks that it is shown. Afterwards it marks
+  the notification as read. Skipped up to Backstage 1.41, whose app template
+  doesn't include the notifications plugin.
+- `settings.spec.ts` navigates to *Settings*, checks that the language
+  selection offers all configured languages and opens the *Authentication
+  Providers* and *Feature Flags* tabs.
 
 Each version uploads its screenshots as a `screenshots-<version>` artifact, and
 all screenshots are also collected into a single `screenshots` artifact.

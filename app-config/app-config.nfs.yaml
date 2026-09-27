@@ -13,3 +13,13 @@ app:
           availableLanguages:
             - en
             - de
+
+# Static token for the tests to call backend APIs, e.g. to send notifications
+# in tests/notifications.spec.ts. Only for the tests, never use it elsewhere.
+backend:
+  auth:
+    externalAccess:
+      - type: static
+        options:
+          token: e2e-tests-static-token
+          subject: e2e-tests

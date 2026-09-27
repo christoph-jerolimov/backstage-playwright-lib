@@ -7,6 +7,10 @@ export default defineConfig({
     timeout: 30_000,
   },
   forbidOnly: !!process.env.CI,
+  // One test at a time: all tests use the same guest user, so a notification
+  // sent by tests/notifications.spec.ts would show up in the screenshots of
+  // tests that run at the same time.
+  workers: 1,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI
     ? [

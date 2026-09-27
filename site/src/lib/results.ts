@@ -40,13 +40,22 @@ const knownScreens: Record<string, string> = {
   catalog: 'Catalog',
   apis: 'APIs',
   'apis-entity': 'APIs: example-grpc-api',
+  'apis-entity-definition': 'APIs: example-grpc-api definition',
+  'apis-entity-techdocs': 'APIs: example-grpc-api TechDocs',
   docs: 'Docs',
   create: 'Create',
   'create-template': 'Create: Example Node.js Template',
+  'create-tasks': 'Create: Tasks',
+  'create-actions': 'Create: Actions',
+  'create-template-editor': 'Create: Template Editor',
+  'create-templating-extensions': 'Create: Templating Extensions',
   'register-existing-component': 'Register existing component',
   notifications: 'Notifications',
+  'notifications-sent': 'Notifications: sent notification',
   settings: 'Settings',
   'settings-language': 'Settings: language selection',
+  'settings-authentication-providers': 'Settings: Authentication Providers',
+  'settings-feature-flags': 'Settings: Feature Flags',
 };
 
 const capitalize = (value: string) =>
