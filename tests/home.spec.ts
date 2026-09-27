@@ -1,4 +1,4 @@
-import { test } from './utils';
+import { test } from './fixtures';
 
 test.beforeEach(async ({ backstagePage }) => {
   await backstagePage.loginAsGuest();

@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { test } from './utils';
+import { test } from './fixtures';
 
 test('opens the login page and logs in as guest', async ({
   page,
