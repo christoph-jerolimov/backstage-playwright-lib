@@ -330,6 +330,38 @@ export class BackstagePage {
     return this.pageTabs().filter({ hasText: exactly(label) });
   }
 
+  /**
+   * Opens the tab with the given label that the new frontend system shows in
+   * a group of the tab bar, e.g. `pageTabInGroup('Documentation', 'TechDocs')`
+   * on an API entity page, and waits until its page is shown.
+   *
+   * The group is an MUI tab that shows its tabs as buttons in a popover below
+   * the tab bar (Backstage 1.49 to 1.53), or a Backstage UI button that shows
+   * them as a menu (since 1.54). The tabs of a group are only in the DOM while the
+   * group is open. The old frontend system has no groups, so there the tab
+   * is opened directly from the tab bar.
+   */
+  async pageTabInGroup(group: string, label: string): Promise<void> {
+    const name = exactly(label);
+    const groupName = exactly(group);
+    const directTab = this.pageTab(label);
+    const groupButton = this.pageContent()
+      .getByRole('tab', { name: groupName })
+      .or(this.pageContent().getByRole('button', { name: groupName }));
+    await expect(directTab.or(groupButton).first()).toBeVisible();
+
+    let tab = directTab;
+    if (!(await directTab.isVisible())) {
+      await groupButton.click();
+      tab = this.page
+        .getByRole('menuitemradio', { name })
+        .or(this.page.getByRole('navigation').getByRole('button', { name }));
+    }
+    const href = await tab.getAttribute('href');
+    await tab.click();
+    await expect(this.page).toHaveURL(url => url.pathname === href);
+  }
+
   /** All tabs of the page, including tabs within the content. */
   allTabs(): Locator {
     return this.page

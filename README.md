@@ -67,6 +67,7 @@ system. Tests get it as the `backstagePage` fixture:
 | -------------------------- | ------------------------------------------------------------------- |
 | `loginAsGuest()`           | Opens the app and logs in as guest                                  |
 | `clickSidebarItem(label)`  | Clicks a sidebar item and waits until its page is shown             |
+| `pageTabInGroup(group, label)` | Opens a tab of a tab group, e.g. `('Documentation', 'TechDocs')`; opens the tab directly if there are no groups (old frontend) |
 | `waitForPageToSettle()`    | Waits for requests, loading indicators and animations to finish     |
 | `takeScreenshot(name)`     | Saves `screenshots/<name>-<version>.png` and attaches it to the report |
 | `isVersionBetween(from, to)` | Whether the tested version is in the range, e.g. `('1.49', '1.53')` |
