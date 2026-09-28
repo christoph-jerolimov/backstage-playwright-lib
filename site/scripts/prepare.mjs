@@ -72,7 +72,9 @@ function readTestResults(file) {
       for (const test of spec.tests ?? []) {
         tests.push({
           file: spec.file ?? path[0],
-          title: spec.title,
+          // Include the titles of the test.describe blocks, e.g.
+          // "Settings › opens the Feature Flags tab".
+          title: [...path.slice(1), spec.title].join(' › '),
           status: statusNames[test.status] ?? test.status,
         });
       }
