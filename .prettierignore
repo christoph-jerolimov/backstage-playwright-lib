@@ -1,0 +1,13 @@
+# Generated files and build output
+node_modules/
+package-lock.json
+playwright-report/
+test-results/
+test-results.json
+screenshots/
+artifacts/
+site/dist/
+site/.astro/
+site/public/screenshots/
+site/public/reports/
+site/src/data/results.json

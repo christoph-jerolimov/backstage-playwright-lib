@@ -29,7 +29,9 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const siteDir = join(dirname(fileURLToPath(import.meta.url)), '..');
-const artifactsDir = resolve(process.argv[2] ?? join(siteDir, '..', 'artifacts'));
+const artifactsDir = resolve(
+  process.argv[2] ?? join(siteDir, '..', 'artifacts'),
+);
 const reportsDir = join(artifactsDir, 'reports');
 const screenshotsDir = join(artifactsDir, 'screenshots');
 

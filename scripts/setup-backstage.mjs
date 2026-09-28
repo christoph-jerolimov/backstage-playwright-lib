@@ -24,7 +24,11 @@ if (!process.argv[2]) {
   process.exit(1);
 }
 
-const configDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'app-config');
+const configDir = join(
+  dirname(fileURLToPath(import.meta.url)),
+  '..',
+  'app-config',
+);
 const YAML = createRequire(join(appDir, 'package.json'))('yaml');
 const readYaml = file => YAML.parse(readFileSync(file, 'utf8')) ?? {};
 

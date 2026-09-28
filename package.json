@@ -4,11 +4,14 @@
   "private": true,
   "scripts": {
     "test": "playwright test",
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "prettier:check": "prettier --check .",
+    "prettier:fix": "prettier --write ."
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",
     "@types/node": "^22.0.0",
+    "prettier": "^3.9.9",
     "typescript": "^5.8.0"
   }
 }

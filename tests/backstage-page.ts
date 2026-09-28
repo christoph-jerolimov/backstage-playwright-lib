@@ -100,7 +100,8 @@ function exactly(label: string): RegExp {
 }
 
 /** The cells of a table row: MUI table cells and Backstage UI grid cells. */
-const tableCells = 'td, th:not([scope="col"]), [role="cell"], [role="gridcell"], [role="rowheader"]';
+const tableCells =
+  'td, th:not([scope="col"]), [role="cell"], [role="gridcell"], [role="rowheader"]';
 
 /**
  * A page object for the areas of a Backstage page that work across the old

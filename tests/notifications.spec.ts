@@ -38,11 +38,9 @@ test('navigates to Notifications and shows a sent notification', async ({
   // label, e.g. "Notifications 1". Backstage 1.50 to 1.52 show two
   // Notifications items; only the second one shows the number.
   const sidebarItemWithCount = (count: number) =>
-    backstagePage
-      .allSidebarItems()
-      .filter({
-        hasText: new RegExp(`^\\s*notifications\\s*${count}\\s*$`, 'i'),
-      });
+    backstagePage.allSidebarItems().filter({
+      hasText: new RegExp(`^\\s*notifications\\s*${count}\\s*$`, 'i'),
+    });
   await expect(backstagePage.sidebarItem('Notifications')).toBeVisible();
   await expect(sidebarItemWithCount(1)).toHaveCount(0);
 

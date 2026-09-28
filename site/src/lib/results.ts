@@ -137,6 +137,4 @@ export const screenshotUrl = (version: Version, screen: string) =>
 export const reportUrl = (version: Version) => url(`reports/${version.id}/`);
 
 export const compareUrl = (screen: string, a: string, b: string) =>
-  url(
-    `compare/?${new URLSearchParams({ screen, a, b }).toString()}`,
-  );
+  url(`compare/?${new URLSearchParams({ screen, a, b }).toString()}`);
