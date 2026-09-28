@@ -9,7 +9,6 @@
     "prettier:fix": "prettier --write ."
   },
   "devDependencies": {
-    "@backstage/e2e-test-utils": "^0.1.2",
     "@playwright/test": "^1.55.0",
     "@types/node": "^22.0.0",
     "prettier": "^3.9.9",

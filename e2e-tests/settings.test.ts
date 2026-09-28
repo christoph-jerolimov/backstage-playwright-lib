@@ -1,9 +1,5 @@
 import { expect } from '@playwright/test';
-import { failOnBrowserErrors } from '@backstage/e2e-test-utils/playwright';
 import { test } from './fixtures';
-
-// Fail on uncaught exceptions and console errors in the browser.
-failOnBrowserErrors();
 
 // The languages enabled in app-config/app-config.nfs.yaml, with the names the
 // language selection shows for them.

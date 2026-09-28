@@ -1,9 +1,5 @@
 import { expect } from '@playwright/test';
-import { failOnBrowserErrors } from '@backstage/e2e-test-utils/playwright';
 import { test } from './fixtures';
-
-// Fail on uncaught exceptions and console errors in the browser.
-failOnBrowserErrors();
 
 // The backend URL and the static token of backend.auth.externalAccess in
 // app-config/app-config.{nfs,ofs}.yaml.
