@@ -272,7 +272,7 @@ export class BackstagePage {
    * page of it (e.g. /settings redirects to /settings/general), and a heading
    * is visible.
    */
-  async clickSidebarItem(label: string | RegExp): Promise<void> {
+  async openSidebarItem(label: string | RegExp): Promise<void> {
     const item = this.sidebarItem(label);
     const href = await item.getAttribute('href');
     await item.click();
@@ -333,7 +333,7 @@ export class BackstagePage {
 
   /**
    * Opens the tab with the given label that the new frontend system shows in
-   * a group of the tab bar, e.g. `pageTabInGroup('Documentation', 'TechDocs')`
+   * a group of the tab bar, e.g. `openPageTabInGroup('Documentation', 'TechDocs')`
    * on an API entity page, and waits until its page is shown.
    *
    * The group is an MUI tab that shows its tabs as buttons in a popover below
@@ -342,7 +342,7 @@ export class BackstagePage {
    * group is open. The old frontend system has no groups, so there the tab
    * is opened directly from the tab bar.
    */
-  async pageTabInGroup(group: string, label: string): Promise<void> {
+  async openPageTabInGroup(group: string, label: string): Promise<void> {
     const name = exactly(label);
     const groupName = exactly(group);
     const directTab = this.pageTab(label);

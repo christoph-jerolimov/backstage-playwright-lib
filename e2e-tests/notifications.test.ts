@@ -29,7 +29,7 @@ test('navigates to Notifications and shows a sent notification', async ({
       notifications.url().startsWith(`${backendUrl}/api/notifications`) &&
       Boolean(notifications.headers().authorization),
   );
-  await backstagePage.clickSidebarItem('Notifications');
+  await backstagePage.openSidebarItem('Notifications');
   const userAuthorization = (await notificationsRequest).headers()
     .authorization;
   await backstagePage.takeScreenshot('notifications');

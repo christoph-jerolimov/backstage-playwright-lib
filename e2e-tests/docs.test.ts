@@ -5,6 +5,6 @@ test.beforeEach(async ({ backstagePage }) => {
 });
 
 test('navigates to Docs', async ({ backstagePage }) => {
-  await backstagePage.clickSidebarItem('Docs');
+  await backstagePage.openSidebarItem('Docs');
   await backstagePage.takeScreenshot('docs');
 });

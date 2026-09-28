@@ -16,7 +16,7 @@ test('navigates to Settings and shows the language selection', async ({
   page,
   backstagePage,
 }) => {
-  await backstagePage.clickSidebarItem('Settings');
+  await backstagePage.openSidebarItem('Settings');
   await backstagePage.takeScreenshot('settings');
 
   const languageSetting = page

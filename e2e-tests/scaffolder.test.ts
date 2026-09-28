@@ -10,7 +10,7 @@ test('navigates to Create and chooses the Example Node.js Template', async ({
   backstagePage,
 }) => {
   // The sidebar item is called "Create..." in older versions.
-  await backstagePage.clickSidebarItem(/^\s*create(\.\.\.)?\s*$/i);
+  await backstagePage.openSidebarItem(/^\s*create(\.\.\.)?\s*$/i);
   await backstagePage.takeScreenshot('create');
 
   const templateCard = backstagePage.card('Example Node.js Template');
@@ -32,7 +32,7 @@ test('navigates to the tabs of Create', async ({ page, backstagePage }) => {
     'The Create page has no tabs in the old frontend system',
   );
 
-  await backstagePage.clickSidebarItem(/^\s*create(\.\.\.)?\s*$/i);
+  await backstagePage.openSidebarItem(/^\s*create(\.\.\.)?\s*$/i);
   for (const name of [
     'Tasks',
     'Actions',

@@ -23,6 +23,6 @@ test('navigates to Home', async ({ page, backstagePage }) => {
     }),
   );
 
-  await backstagePage.clickSidebarItem('Home');
+  await backstagePage.openSidebarItem('Home');
   await backstagePage.takeScreenshot('home');
 });

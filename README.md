@@ -72,21 +72,21 @@ system. Tests get it as the `backstagePage` fixture:
 | `breadcrumbItems()`     | The items of the breadcrumbs, e.g. Settings and General                  |
 | `breadcrumbItem(label)` | One breadcrumb item, e.g. `breadcrumbItem('Settings')`                   |
 
-| Action                         | What it does                                                                                                                   |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| `loginAsGuest()`               | Opens the app and logs in as guest                                                                                             |
-| `clickSidebarItem(label)`      | Clicks a sidebar item and waits until its page is shown                                                                        |
-| `pageTabInGroup(group, label)` | Opens a tab of a tab group, e.g. `('Documentation', 'TechDocs')`; opens the tab directly if there are no groups (old frontend) |
-| `waitForPageToSettle()`        | Waits for requests, loading indicators and animations to finish                                                                |
-| `takeScreenshot(name)`         | Saves `screenshots/<name>-<version>.png` and attaches it to the report                                                         |
-| `isVersionBetween(from, to)`   | Whether the tested version is in the range, e.g. `('1.49', '1.53')`                                                            |
+| Action                             | What it does                                                                                                                   |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `loginAsGuest()`                   | Opens the app and logs in as guest                                                                                             |
+| `openSidebarItem(label)`           | Opens a sidebar item and waits until its page is shown                                                                         |
+| `openPageTabInGroup(group, label)` | Opens a tab of a tab group, e.g. `('Documentation', 'TechDocs')`; opens the tab directly if there are no groups (old frontend) |
+| `waitForPageToSettle()`            | Waits for requests, loading indicators and animations to finish                                                                |
+| `takeScreenshot(name)`             | Saves `screenshots/<name>-<version>.png` and attaches it to the report                                                         |
+| `isVersionBetween(from, to)`       | Whether the tested version is in the range, e.g. `('1.49', '1.53')`                                                            |
 
 Labels are matched exactly, but ignoring case, since the old frontend shows
 some labels in capitals via CSS.
 
 ```ts
 test('filters the catalog', async ({ backstagePage }) => {
-  await backstagePage.clickSidebarItem('Catalog');
+  await backstagePage.openSidebarItem('Catalog');
   await backstagePage.contentFilter().fill('example');
   await expect(backstagePage.table().getByRole('row')).toHaveCount(2);
 });

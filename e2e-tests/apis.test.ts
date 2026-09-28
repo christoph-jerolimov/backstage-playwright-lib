@@ -9,7 +9,7 @@ test('navigates to APIs and opens the example-grpc-api entity', async ({
   page,
   backstagePage,
 }) => {
-  await backstagePage.clickSidebarItem('APIs');
+  await backstagePage.openSidebarItem('APIs');
   await backstagePage.takeScreenshot('apis');
 
   await page
@@ -27,7 +27,7 @@ test('navigates to APIs and opens the example-grpc-api entity', async ({
     : ['Definition', 'TechDocs'];
   for (const name of documentationTabs) {
     await test.step(`open the ${name} tab`, async () => {
-      await backstagePage.pageTabInGroup('Documentation', name);
+      await backstagePage.openPageTabInGroup('Documentation', name);
       if (name === 'Definition') {
         await expect(backstagePage.tab('gRPC')).toBeVisible();
       }

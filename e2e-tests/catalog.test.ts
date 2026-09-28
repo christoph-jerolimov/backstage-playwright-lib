@@ -14,7 +14,7 @@ test('navigates to Catalog and opens the example-website entity', async ({
   const catalogItem = backstagePage.isVersionBetween('1.0', '1.48')
     ? 'Home'
     : 'Catalog';
-  await backstagePage.clickSidebarItem(catalogItem);
+  await backstagePage.openSidebarItem(catalogItem);
   await backstagePage.takeScreenshot('catalog');
 
   await page
@@ -54,7 +54,7 @@ test('navigates to Register Existing Component', async ({ backstagePage }) => {
     'The sidebar has no Register Existing Component item in this version',
   );
 
-  await backstagePage.clickSidebarItem(
+  await backstagePage.openSidebarItem(
     /^\s*register existing (component|entity)\s*$/i,
   );
   await backstagePage.takeScreenshot('register-existing-component');
