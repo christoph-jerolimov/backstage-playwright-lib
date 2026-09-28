@@ -94,7 +94,9 @@ test('filters the catalog', async ({ backstagePage }) => {
 
 ## CI
 
-The [E2E workflow](.github/workflows/e2e.yml) clones
+The [E2E workflow](.github/workflows/e2e.yml) first typechecks the tests
+(`npm run tsc`) and checks the formatting (`npm run prettier:check`). Then it
+clones
 [backstage-history](https://github.com/christoph-jerolimov/backstage-history),
 installs its dependencies, starts it with `yarn start` (`yarn dev` up to
 Backstage 1.37, where `yarn start` only starts the frontend) and runs the
