@@ -332,6 +332,17 @@ export class BackstagePage {
   }
 
   /**
+   * Opens the tab of the tab bar of the page with the given label (see
+   * `pageTab`) and waits until its page is shown.
+   */
+  async openPageTab(label: string): Promise<void> {
+    const tab = this.pageTab(label);
+    const href = await tab.getAttribute('href');
+    await tab.click();
+    await expect(this.page).toHaveURL(url => url.pathname === href);
+  }
+
+  /**
    * Opens the tab with the given label that the new frontend system shows in
    * a group of the tab bar, e.g. `openPageTabInGroup('Documentation', 'TechDocs')`
    * on an API entity page, and waits until its page is shown.

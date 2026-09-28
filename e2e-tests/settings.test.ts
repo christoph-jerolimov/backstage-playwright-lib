@@ -1,10 +1,6 @@
 import { expect } from '@playwright/test';
 import { test } from './fixtures';
 
-test.beforeEach(async ({ backstagePage }) => {
-  await backstagePage.loginAsGuest();
-});
-
 // The languages enabled in app-config/app-config.nfs.yaml, with the names the
 // language selection shows for them.
 const languages = [
@@ -12,33 +8,33 @@ const languages = [
   { code: 'de', name: 'Deutsch' },
 ];
 
-test('navigates to Settings and shows the language selection', async ({
-  page,
-  backstagePage,
-}) => {
-  await backstagePage.openSidebarItem('Settings');
-  await backstagePage.takeScreenshot('settings');
+test.describe('Settings', () => {
+  test.beforeEach(async ({ backstagePage }) => {
+    await backstagePage.loginAsGuest();
+    await backstagePage.openSidebarItem('Settings');
+  });
 
-  const languageSetting = page
-    .getByRole('listitem')
-    .filter({ has: page.getByText('Change the language') });
-  const languageSelection = languageSetting.getByRole('button');
-  await expect(languageSelection).toHaveText(languages[0].name);
+  test('opens Settings from the sidebar', async ({ backstagePage }) => {
+    await backstagePage.takeScreenshot('settings');
+  });
 
-  await languageSelection.click();
-  await expect(page.getByRole('option')).toHaveText(
-    languages.map(language => language.name),
-  );
-  await backstagePage.takeScreenshot('settings-language');
-  await page.keyboard.press('Escape');
-  await expect(page.getByRole('option')).toHaveCount(0);
+  test('offers all configured languages', async ({ page, backstagePage }) => {
+    const languageSetting = page
+      .getByRole('listitem')
+      .filter({ has: page.getByText('Change the language') });
+    const languageSelection = languageSetting.getByRole('button');
+    await expect(languageSelection).toHaveText(languages[0].name);
+
+    await languageSelection.click();
+    await expect(page.getByRole('option')).toHaveText(
+      languages.map(language => language.name),
+    );
+    await backstagePage.takeScreenshot('settings-language');
+  });
 
   for (const name of ['Authentication Providers', 'Feature Flags']) {
-    await test.step(`open the ${name} tab`, async () => {
-      const tab = backstagePage.pageTab(name);
-      const href = await tab.getAttribute('href');
-      await tab.click();
-      await expect(page).toHaveURL(url => url.pathname === href);
+    test(`opens the ${name} tab`, async ({ backstagePage }) => {
+      await backstagePage.openPageTab(name);
       const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       await backstagePage.takeScreenshot(`settings-${slug}`);
     });

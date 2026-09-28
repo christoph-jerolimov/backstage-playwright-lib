@@ -1,25 +1,32 @@
 import { expect } from '@playwright/test';
 import { test } from './fixtures';
 
-test('opens the login page and logs in as guest', async ({
-  page,
-  backstagePage,
-}) => {
-  const response = await page.goto('/');
+test.describe('Login', () => {
+  test('shows the login page', async ({ page, backstagePage }) => {
+    const response = await page.goto('/');
 
-  expect(response?.ok()).toBeTruthy();
-  await expect(page).toHaveTitle(/.+/);
-  await backstagePage.takeScreenshot('login-page');
+    expect(response?.ok()).toBeTruthy();
+    await expect(page).toHaveTitle(/.+/);
+    await expect(page.getByRole('button', { name: 'Enter' })).toBeVisible();
+    await backstagePage.takeScreenshot('login-page');
+  });
 
-  const enterButton = page.getByRole('button', { name: 'Enter' });
-  await expect(enterButton).toBeVisible();
-  await enterButton.click();
+  test('logs in as guest and shows the catalog', async ({
+    page,
+    backstagePage,
+  }) => {
+    await page.goto('/');
+    const enterButton = page.getByRole('button', { name: 'Enter' });
+    await enterButton.click();
 
-  await expect(enterButton).toBeHidden();
-  await expect(backstagePage.sidebar().getByRole('link').first()).toBeVisible();
-  // The guest lands on the catalog page after logging in.
-  await expect(
-    page.getByRole('heading', { name: 'My Company Catalog' }),
-  ).toBeVisible();
-  await backstagePage.takeScreenshot('after-login');
+    await expect(enterButton).toBeHidden();
+    await expect(
+      backstagePage.sidebar().getByRole('link').first(),
+    ).toBeVisible();
+    // The guest lands on the catalog page after logging in.
+    await expect(
+      page.getByRole('heading', { name: 'My Company Catalog' }),
+    ).toBeVisible();
+    await backstagePage.takeScreenshot('after-login');
+  });
 });

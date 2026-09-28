@@ -76,6 +76,7 @@ system. Tests get it as the `backstagePage` fixture:
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | `loginAsGuest()`                   | Opens the app and logs in as guest                                                                                             |
 | `openSidebarItem(label)`           | Opens a sidebar item and waits until its page is shown                                                                         |
+| `openPageTab(label)`               | Opens a tab of the page's tab bar and waits until its page is shown                                                            |
 | `openPageTabInGroup(group, label)` | Opens a tab of a tab group, e.g. `('Documentation', 'TechDocs')`; opens the tab directly if there are no groups (old frontend) |
 | `waitForPageToSettle()`            | Waits for requests, loading indicators and animations to finish                                                                |
 | `takeScreenshot(name)`             | Saves `screenshots/<name>-<version>.png` and attaches it to the report                                                         |
@@ -122,8 +123,10 @@ Versions that can't be tested are listed in `SKIP_VERSIONS` in the workflow,
 currently 1.39.0, whose backend fails to start.
 
 Within a job, the tests run one at a time, since they all use the same guest
-user (see the notifications test below). They take a screenshot at the end of
-each step:
+user (see the notifications test below). Each file groups its tests in a
+`test.describe` for one area of the app, with one focused test per page or tab,
+so that a failure in one tab doesn't hide the others. Every test logs in as
+guest and takes a screenshot at the end:
 
 - `login.test.ts` opens the login page, logs in as guest by clicking the
   _Enter_ button and waits for the catalog page.
