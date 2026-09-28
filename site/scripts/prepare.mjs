@@ -39,7 +39,7 @@ const publicReportsDir = join(siteDir, 'public', 'reports');
 const publicScreenshotsDir = join(siteDir, 'public', 'screenshots');
 const resultsFile = join(siteDir, 'src', 'data', 'results.json');
 
-// Must match the sanitizing in tests/backstage-page.ts.
+// Must match the sanitizing in e2e-tests/backstage-page.ts.
 const sanitize = ref => ref.replace(/[^a-zA-Z0-9._-]/g, '-');
 
 const listDir = dir => (existsSync(dir) ? readdirSync(dir) : []);

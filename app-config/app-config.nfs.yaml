@@ -15,7 +15,7 @@ app:
             - de
 
 # Static token for the tests to call backend APIs, e.g. to send notifications
-# in tests/notifications.spec.ts. Only for the tests, never use it elsewhere.
+# in e2e-tests/notifications.test.ts. Only for the tests, never use it elsewhere.
 backend:
   auth:
     externalAccess:

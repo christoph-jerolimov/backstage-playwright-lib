@@ -53,7 +53,7 @@ test('navigates to Notifications and shows a sent notification', async ({
       payload: {
         title,
         description:
-          'This notification was sent by tests/notifications.spec.ts.',
+          'This notification was sent by e2e-tests/notifications.test.ts.',
         link: '/catalog',
         severity: 'normal',
       },

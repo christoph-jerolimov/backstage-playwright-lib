@@ -31,7 +31,7 @@ npm run tsc
 
 ## Page object
 
-[`tests/backstage-page.ts`](tests/backstage-page.ts) provides locators and actions for the
+[`e2e-tests/backstage-page.ts`](e2e-tests/backstage-page.ts) provides locators and actions for the
 areas of a Backstage page that work across the old and the new frontend
 system. Tests get it as the `backstagePage` fixture:
 
@@ -125,30 +125,30 @@ Within a job, the tests run one at a time, since they all use the same guest
 user (see the notifications test below). They take a screenshot at the end of
 each step:
 
-- `login.spec.ts` opens the login page, logs in as guest by clicking the
+- `login.test.ts` opens the login page, logs in as guest by clicking the
   _Enter_ button and waits for the catalog page.
-- `home.spec.ts` navigates to _Home_. Skipped for Backstage 1.49 to 1.53,
+- `home.test.ts` navigates to _Home_. Skipped for Backstage 1.49 to 1.53,
   which have no Home item.
-- `catalog.spec.ts` navigates to _Catalog_, opens the `example-website` entity
+- `catalog.test.ts` navigates to _Catalog_, opens the `example-website` entity
   and takes a screenshot of each tab of the entity page. Up to Backstage 1.48
   the catalog item is called Home, so the test clicks Home there. It also
   navigates to _Register Existing Component_, which is skipped up to Backstage
   1.49; the catalog import plugin adds this sidebar item since 1.50.
-- `apis.spec.ts` navigates to _APIs_, opens the `example-grpc-api` entity and
+- `apis.test.ts` navigates to _APIs_, opens the `example-grpc-api` entity and
   its _Definition_ and _TechDocs_ tabs (grouped in a _Documentation_ tab since
   Backstage 1.49; up to 1.48 there is only a _Definition_ tab).
-- `docs.spec.ts` navigates to _Docs_.
-- `scaffolder.spec.ts` navigates to _Create_ (called _Create..._ in older
+- `docs.test.ts` navigates to _Docs_.
+- `scaffolder.test.ts` navigates to _Create_ (called _Create..._ in older
   versions), selects the _Example Node.js Template_ card and clicks _Choose_.
   It also opens the _Tasks_, _Actions_, _Template Editor_ and _Templating
   Extensions_ tabs, which is skipped up to Backstage 1.48 (no tabs there).
-- `notifications.spec.ts` navigates to _Notifications_, sends a notification
+- `notifications.test.ts` navigates to _Notifications_, sends a notification
   to all users via the notifications backend (using a static token configured
   in both app-config files) and checks that it is shown and that the sidebar
   item shows 1 unread notification. Afterwards it marks
   the notification as read. Skipped up to Backstage 1.41, whose app template
   doesn't include the notifications plugin.
-- `settings.spec.ts` navigates to _Settings_, checks that the language
+- `settings.test.ts` navigates to _Settings_, checks that the language
   selection offers all configured languages and opens the _Authentication
   Providers_ and _Feature Flags_ tabs.
 
